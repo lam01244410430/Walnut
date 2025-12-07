@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: common_head('后台仪表盘')}"></head>
+<head th:replace="fragments/head :: common_head('后台仪表盘')">
+</head>
 
 <body style="display: flex;">
 
-<div th:replace="~{fragments/sidebar :: admin_sidebar('dashboard')}"></div>
+<div th:replace="fragments/sidebar :: admin_sidebar('dashboard')"></div>
 
 <div class="main-content" style="flex: 1; padding: 20px; display: flex; flex-direction: column;">
 
@@ -26,7 +27,7 @@
         </div>
     </div>
 
-    <div th:replace="~{fragments/footer :: copyright}"></div>
+    <div th:replace="fragments/footer :: copyright"></div>
 </div>
 
 </body>
