@@ -14,10 +14,23 @@ public class ProductionData {
     private Date recordDate;
 
     @ManyToOne
-    @JoinColumn(name = "farmer_id") // Khóa ngoại trỏ về bảng Farmer
+    @JoinColumn(name = "farmer_id")
     private Farmer farmer;
 
     public ProductionData() {}
-    // Getters...
+
+    public ProductionData(Double yieldAmount, Date recordDate, Farmer farmer) {
+        this.yieldAmount = yieldAmount;
+        this.recordDate = recordDate;
+        this.farmer = farmer;
+    }
+
+    // Getters & Setters
+    public Long getId() { return id; }
     public Double getYieldAmount() { return yieldAmount; }
+    public void setYieldAmount(Double yieldAmount) { this.yieldAmount = yieldAmount; }
+    public Date getRecordDate() { return recordDate; }
+    public void setRecordDate(Date recordDate) { this.recordDate = recordDate; }
+    public Farmer getFarmer() { return farmer; }
+    public void setFarmer(Farmer farmer) { this.farmer = farmer; }
 }
