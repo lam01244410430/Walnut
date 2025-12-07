@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="admin_sidebar(activePage)" class="sidebar">
+    <h2>掌上核桃 <br><small style="font-size: 14px; opacity: 0.8;">管理系统</small></h2>
+
+    <a th:href="@{/admin/dashboard}"
+       th:classappend="${activePage == 'dashboard'} ? 'active-link'">
+        📊 仪表盘 (Dashboard)
+    </a>
+
+    <a th:href="@{/admin/upload}"
+       th:classappend="${activePage == 'upload'} ? 'active-link'">
+        ☁️ 数据上传 (Upload)
+    </a>
+
+    <a th:href="@{/admin/users}"
+       th:classappend="${activePage == 'users'} ? 'active-link'">
+        👥 用户管理 (Users)
+    </a>
+
+    <a th:href="@{/}" target="_blank" style="color: #c8e6c9; margin-top: 20px; border-top: 1px solid #2e7d32;">
+        🏠 返回前台 (Trang chủ)
+    </a>
+
+    <a th:href="@{/logout}" style="margin-top: auto; background-color: #144a19; color: #ffcdd2;">
+        🚪 退出登录 (Logout)
+    </a>
+</div>
+</body>
+</html>

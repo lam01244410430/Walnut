@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页 - 掌上核桃 (Trang chủ)</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* CSS riêng cho trang chủ */
+        .hero-section {
+            background: linear-gradient(rgba(27, 94, 32, 0.8), rgba(27, 94, 32, 0.8)), url('/images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .hero-title { font-size: 3rem; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .hero-subtitle { font-size: 1.2rem; margin-top: 10px; opacity: 0.9; }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto 50px auto;
+            padding: 0 20px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            border-top: 5px solid #2e7d32;
+        }
+        .feature-card:hover { transform: translateY(-10px); }
+        .icon-large { font-size: 50px; margin-bottom: 15px; display: block; }
+        .card-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #2e7d32;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+        }
+        .card-btn:hover { background: #1b5e20; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: main_header}"></div>
+
+<div class="hero-section">
+    <h1 class="hero-title">掌上核桃 (Palm Walnut)</h1>
+    <p class="hero-subtitle">智慧农业管理系统 - 科技助力核桃丰收</p>
+    <a th:if="${session.user == null}" href="/login" style="display: inline-block; margin-top: 30px; padding: 15px 40px; background: #ffeb3b; color: #333; font-weight: bold; text-decoration: none; border-radius: 30px;">
+        立即开始 🚀
+    </a>
+</div>
+
+<div class="feature-grid">
+
+    <div class="feature-card">
+        <span class="icon-large">🔍</span>
+        <h3>智能病害识别</h3>
+        <p>快速查询核桃常见病虫害，获取专家防治建议。</p>
+        <a href="/search" class="card-btn">去查询</a>
+    </div>
+
+    <div class="feature-card">
+        <span class="icon-large">📈</span>
+        <h3>产量预测分析</h3>
+        <p>基于历史数据分析，科学预测下一季产量。</p>
+        <a href="/predict" class="card-btn">看数据</a>
+    </div>
+
+    <div class="feature-card">
+        <span class="icon-large">👨‍🏫</span>
+        <h3>专家在线咨询</h3>
+        <p>遇到种植难题？直接向农业专家提问。</p>
+        <a href="/consultation" class="card-btn">问专家</a>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: copyright}"></div>
+
+</body>
+</html>

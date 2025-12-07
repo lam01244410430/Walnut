@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>专家工作台 - 掌上核桃</title> <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* 专家专用样式 */
+        .expert-panel {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin: 20px auto;
+            max-width: 1000px;
+            overflow: hidden;
+        }
+        .panel-header {
+            background: linear-gradient(135deg, #00695c, #00897b); /* Xanh ngọc */
+            color: white;
+            padding: 25px;
+        }
+        .panel-header h2 { margin: 0; font-size: 24px; }
+        .panel-header p { margin: 5px 0 0; opacity: 0.9; }
+
+        .question-list { padding: 20px; }
+        .question-item {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .question-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        .q-header {
+            background: #fafafa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+        }
+        .q-body { padding: 15px; }
+        .q-content { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px; }
+
+        /* 状态标签 (Nhãn trạng thái) */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge-pending { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; } /* Chờ trả lời */
+        .badge-done { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }   /* Đã trả lời */
+
+        /* 回复表单 (Form trả lời) */
+        .reply-area {
+            margin-top: 15px;
+            border-top: 1px dashed #ddd;
+            padding-top: 15px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .btn-reply {
+            background-color: #00897b;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-reply:hover { background-color: #00695c; }
+
+        .answer-box {
+            background-color: #f1f8e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid #43a047;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: main_header}"></div>
+
+<div class="expert-panel">
+    <div class="panel-header">
+        <h2>👨‍🏫 专家工作台 (Expert Dashboard)</h2>
+        <p>
+            欢迎您，<strong th:text="${expertName}"></strong>
+            <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 10px;">
+                <span th:text="${specialization}"></span>
+            </span>
+        </p>
+    </div>
+
+    <div class="question-list">
+        <h3 style="border-bottom: 2px solid #00897b; padding-bottom: 10px; margin-bottom: 20px; color: #00695c;">
+            📋 农户咨询列表
+        </h3>
+
+        <div th:each="q : ${questions}" class="question-item">
+
+            <div class="q-header">
+                <span>
+                    👤 农户: <strong th:text="${q.farmer.name}"></strong>
+                </span>
+                <span th:text="${#dates.format(q.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+
+            <div class="q-body">
+                <div class="q-content">
+                    ❓ <span th:text="${q.question}"></span>
+                </div>
+
+                <div th:if="${q.answer != null}">
+                    <span class="badge badge-done">✅ 已回复</span>
+                    <div class="answer-box">
+                        <strong style="color: #2e7d32;">专家回复:</strong>
+                        <p style="margin: 5px 0;" th:text="${q.answer}"></p>
+                    </div>
+                </div>
+
+                <div th:if="${q.answer == null}" class="reply-area">
+                    <span class="badge badge-pending">⏳ 待处理</span>
+
+                    <form action="/expert/reply" method="post">
+                        <input type="hidden" name="questionId" th:value="${q.id}">
+                        <textarea name="answerText" placeholder="请输入您的专业建议..."></textarea>
+                        <div style="text-align: right;">
+                            <button type="submit" class="btn-reply">📤 发送回复</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(questions)}" style="text-align: center; padding: 40px; color: #999;">
+            Currently no questions. (暂无咨询记录)
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

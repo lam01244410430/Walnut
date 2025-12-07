@@ -1,0 +1,60 @@
+/* --- USER DROPDOWN (MENU TÀI KHOẢN GÓC PHẢI) --- */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px 0;
+}
+
+/* Nội dung menu thả xuống (Mặc định ẩn) */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%; /* Hiện ngay dưới tên người dùng */
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Hiệu ứng: Khi di chuột vào .user-dropdown thì hiện .dropdown-menu */
+.user-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* Style cho các link bên trong menu */
+.dropdown-menu a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f1f1f1;
+    color: #2e7d32; /* Màu xanh chủ đạo */
+}
+
+/* Thông tin role (Phần trên cùng của menu) */
+.role-badge {
+    padding: 10px 16px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #eee;
+    color: #666;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Nút Đăng xuất (Nằm dưới cùng, màu đỏ nhạt) */
+.logout-item {
+    border-top: 1px solid #eee;
+    color: #d32f2f !important;
+}
+.logout-item:hover {
+    background-color: #ffebee !important;
+}
