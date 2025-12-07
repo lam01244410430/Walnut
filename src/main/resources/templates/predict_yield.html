@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dự báo sản lượng</title>
+</head>
+<body>
+<a href="/">⬅ Quay lại</a>
+<h2>Dự báo sản lượng (FARMER-01)</h2>
+
+<div style="border: 2px dashed #2e7d32; padding: 20px; display: inline-block;">
+    <h3>Sản lượng dự kiến vụ tới:</h3>
+    <h1 style="color: #2e7d32;" th:text="${yieldVal} + ' kg'"></h1>
+    <p>(Dựa trên dữ liệu lịch sử tăng trưởng 10%)</p>
+</div>
+</body>
+</html>

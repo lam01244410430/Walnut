@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>专家对话</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <a href="/" class="back-link">⬅ 返回首页</a>
+    <h2 class="page-title">💬 专家咨询</h2>
+
+    <div class="card">
+        <form action="#" method="post"> <label>您的问题 (Câu hỏi của bạn):</label>
+            <textarea rows="4" placeholder="请描述您遇到的问题... (Mô tả vấn đề của bạn)"></textarea>
+            <button type="button" class="btn-primary" onclick="alert('Demo: Câu hỏi đã được gửi đi!')">提交问题 (Gửi)</button>
+        </form>
+    </div>
+
+    <h3 style="margin-top: 30px;">历史咨询 (Lịch sử)</h3>
+    <div class="card">
+        <p style="font-weight: bold; color: #333;">❓ 问题: 我的核桃树叶子发黄了怎么办？</p>
+        <div style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 10px;">
+            <p style="margin: 0; color: var(--primary-color);">👨‍⚕️ <strong>专家回复:</strong> 可能是缺氮肥，建议每株施用尿素 0.5kg。</p>
+            <small style="color: #999;">2025-12-06</small>
+        </div>
+    </div>
+</div>
+</body>
+</html>

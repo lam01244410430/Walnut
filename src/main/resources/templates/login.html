@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <style>
+        body { font-family: "Microsoft YaHei"; text-align: center; padding-top: 50px; background: #f0f0f0;}
+        form { background: white; padding: 20px; display: inline-block; border-radius: 8px; }
+        input, select { margin: 10px 0; padding: 10px; width: 250px; display: block; }
+        button { background: green; color: white; border: none; padding: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+<h2>掌上核桃 (Đăng nhập)</h2>
+<p th:if="${error}" th:text="${error}" style="color: red;"></p>
+
+<form action="/login" method="post">
+    <input type="text" name="username" placeholder="用户名 (Tên đăng nhập)" required>
+    <input type="password" name="password" placeholder="密码 (Mật khẩu)" required>
+
+    <label>选择角色 (Chọn vai trò):</label>
+    <select name="role">
+        <option value="FARMER">农民 (Nông dân)</option>
+        <option value="ADMIN">管理员 (Quản trị viên)</option>
+    </select>
+
+    <button type="submit">登录</button>
+</form>
+</body>
+</html>

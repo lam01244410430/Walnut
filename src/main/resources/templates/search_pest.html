@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tra cứu bệnh</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .card { border: 1px solid #ccc; padding: 10px; margin-top: 10px; background: white; border-left: 5px solid #d32f2f; }
+    </style>
+</head>
+<body>
+<a href="/">⬅ Quay lại trang chủ</a>
+<h2>Tra cứu bệnh hại</h2>
+
+<form action="/search" method="get">
+    <input type="text" name="keyword" placeholder="Nhập triệu chứng (vd: lá vàng)..." style="padding: 10px; width: 300px;">
+    <button type="submit" style="padding: 10px;">Tìm kiếm</button>
+</form>
+
+<div th:if="${results}">
+    <h3>Kết quả:</h3>
+    <div th:each="pest : ${results}" class="card">
+        <h4 th:text="${pest.pestID} + ' - ' + ${pest.symptoms}"></h4>
+        <p><strong>Điều trị:</strong> <span th:text="${pest.treatment}"></span></p>
+    </div>
+</div>
+</body>
+</html>
