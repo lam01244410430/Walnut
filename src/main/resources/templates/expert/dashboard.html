@@ -1,149 +1,162 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>专家工作台 - 掌上核桃</title> <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>专家工作台 (Expert Workbench)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 专家专用样式 */
-        .expert-panel {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin: 20px auto;
-            max-width: 1000px;
-            overflow: hidden;
-        }
-        .panel-header {
-            background: linear-gradient(135deg, #00695c, #00897b); /* Xanh ngọc */
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; }
+
+        /* Sidebar riêng cho Expert (Đã đổi sang màu xanh lá giống Farmer) */
+        .sidebar-expert {
+            background-color: #2e7d32; /* Màu xanh lá Farmer */
             color: white;
-            padding: 25px;
+            min-height: 100vh;
+            min-width: 250px;
+            padding-top: 20px;
         }
-        .panel-header h2 { margin: 0; font-size: 24px; }
-        .panel-header p { margin: 5px 0 0; opacity: 0.9; }
-
-        .question-list { padding: 20px; }
-        .question-item {
-            border: 1px solid #eee;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
+        .sidebar-expert .nav-link {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+            border-radius: 0;
+            padding: 12px 20px;
         }
-        .question-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-
-        .q-header {
-            background: #fafafa;
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            color: #666;
-            font-size: 14px;
-        }
-        .q-body { padding: 15px; }
-        .q-content { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px; }
-
-        /* 状态标签 (Nhãn trạng thái) */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .badge-pending { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; } /* Chờ trả lời */
-        .badge-done { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }   /* Đã trả lời */
-
-        /* 回复表单 (Form trả lời) */
-        .reply-area {
-            margin-top: 15px;
-            border-top: 1px dashed #ddd;
-            padding-top: 15px;
-        }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-            min-height: 80px;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
-        .btn-reply {
-            background-color: #00897b;
+        .sidebar-expert .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
         }
-        .btn-reply:hover { background-color: #00695c; }
+        .sidebar-expert .nav-link.active {
+            background-color: #ffffff;
+            color: #2e7d32; /* Chữ màu xanh lá khi active */
+            font-weight: bold;
+            border-left: 5px solid #ffca28;
+        }
 
-        .answer-box {
-            background-color: #f1f8e9;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            border-left: 4px solid #43a047;
-        }
+        .card-custom { border: none; border-radius: 15px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
     </style>
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: main_header}"></div>
+<div class="d-flex" style="min-height: 100vh;">
 
-<div class="expert-panel">
-    <div class="panel-header">
-        <h2>👨‍🏫 专家工作台 (Expert Dashboard)</h2>
-        <p>
-            欢迎您，<strong th:text="${expertName}"></strong>
-            <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 10px;">
-                <span th:text="${specialization}"></span>
-            </span>
-        </p>
+    <div class="sidebar-expert d-flex flex-column p-3"> <h4 class="text-center mb-4 fw-bold text-white">
+        <i class="fas fa-user-md me-2"></i>专家后台
+    </h4>
+
+        <div class="text-center mb-4 px-2">
+            <div class="bg-white text-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                <i class="fas fa-user-tie fa-2x"></i>
+            </div>
+            <div class="fw-bold text-white" th:text="${expert.name}">Name</div>
+            <div class="small text-white-50" th:text="${expert.specialty}">Spec</div>
+        </div>
+
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+            <button class="nav-link text-start active" id="v-pills-pending-tab" data-bs-toggle="pill" data-bs-target="#v-pills-pending" type="button">
+                <i class="fas fa-inbox me-2" style="width: 25px;"></i> 待回答 (Pending)
+                <span class="badge bg-danger ms-2" th:if="${!#lists.isEmpty(consultations)}" th:text="${#lists.size(consultations)}"></span>
+            </button>
+
+            <button class="nav-link text-start" id="v-pills-history-tab" data-bs-toggle="pill" data-bs-target="#v-pills-history" type="button">
+                <i class="fas fa-check-double me-2" style="width: 25px;"></i> 已回答 (History)
+            </button>
+        </div>
+
+        <div class="mt-auto border-top border-white-50 pt-3">
+            <a class="nav-link text-start text-white" href="/">
+                <i class="fas fa-home me-2" style="width: 25px;"></i> 返回首页 (Home)
+            </a>
+            <a class="nav-link text-start text-white" href="/logout">
+                <i class="fas fa-sign-out-alt me-2" style="width: 25px;"></i> 退出 (Logout)
+            </a>
+        </div>
+
     </div>
 
-    <div class="question-list">
-        <h3 style="border-bottom: 2px solid #00897b; padding-bottom: 10px; margin-bottom: 20px; color: #00695c;">
-            📋 农户咨询列表
-        </h3>
+    <div class="w-100 d-flex flex-column bg-light">
 
-        <div th:each="q : ${questions}" class="question-item">
+        <div th:replace="~{fragments/header :: header}"></div>
 
-            <div class="q-header">
-                <span>
-                    👤 农户: <strong th:text="${q.farmer.name}"></strong>
-                </span>
-                <span th:text="${#dates.format(q.createDate, 'yyyy-MM-dd HH:mm')}"></span>
-            </div>
+        <div class="container-fluid p-4 flex-grow-1">
+            <div class="tab-content">
 
-            <div class="q-body">
-                <div class="q-content">
-                    ❓ <span th:text="${q.question}"></span>
-                </div>
+                <div class="tab-pane fade show active" id="v-pills-pending">
+                    <h4 class="mb-4 fw-bold text-success">
+                        <i class="fas fa-clipboard-list me-2"></i> 待处理咨询
+                    </h4>
 
-                <div th:if="${q.answer != null}">
-                    <span class="badge badge-done">✅ 已回复</span>
-                    <div class="answer-box">
-                        <strong style="color: #2e7d32;">专家回复:</strong>
-                        <p style="margin: 5px 0;" th:text="${q.answer}"></p>
+                    <div class="card card-custom p-0 bg-white overflow-hidden">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="bg-light text-secondary">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>农户 (Farmer)</th>
+                                <th>问题 (Question)</th>
+                                <th>操作 (Action)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c : ${consultations}">
+                                <td class="ps-4 fw-bold" th:text="${c.consultationID}">ID</td>
+                                <td>
+                                    <i class="fas fa-user text-muted me-2"></i>
+                                    <span th:text="${c.farmer != null ? c.farmer.name : 'Unknown'}">Name</span>
+                                </td>
+                                <td class="text-truncate" style="max-width: 300px;" th:text="${c.question}">Question</td>
+                                <td>
+                                    <button class="btn btn-sm btn-success rounded-pill px-3" data-bs-toggle="modal" th:data-bs-target="'#replyModal'+${c.consultationID}">
+                                        <i class="fas fa-reply me-1"></i> 回复 (Reply)
+                                    </button>
+
+                                    <div class="modal fade" th:id="'replyModal'+${c.consultationID}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form action="/expert/reply" method="post">
+                                                    <div class="modal-header bg-success text-white">
+                                                        <h5 class="modal-title">回复咨询</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="consultationID" th:value="${c.consultationID}">
+                                                        <div class="p-3 bg-light rounded mb-3">
+                                                            <small class="text-muted">农户提问:</small>
+                                                            <p class="mb-0 fw-bold" th:text="${c.question}"></p>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">您的建议:</label>
+                                                            <textarea name="answer" class="form-control" rows="4" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-success">发送 (Send)</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(consultations)}">
+                                <td colspan="4" class="text-center py-5 text-muted">目前没有待回答的问题</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div th:if="${q.answer == null}" class="reply-area">
-                    <span class="badge badge-pending">⏳ 待处理</span>
-
-                    <form action="/expert/reply" method="post">
-                        <input type="hidden" name="questionId" th:value="${q.id}">
-                        <textarea name="answerText" placeholder="请输入您的专业建议..."></textarea>
-                        <div style="text-align: right;">
-                            <button type="submit" class="btn-reply">📤 发送回复</button>
-                        </div>
-                    </form>
+                <div class="tab-pane fade" id="v-pills-history">
+                    <h4 class="mb-4 fw-bold text-success">已回答历史</h4>
+                    <div class="alert alert-info">此处展示已回答的历史记录...</div>
                 </div>
 
             </div>
         </div>
 
-        <div th:if="${#lists.isEmpty(questions)}" style="text-align: center; padding: 40px; color: #999;">
-            Currently no questions. (暂无咨询记录)
-        </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

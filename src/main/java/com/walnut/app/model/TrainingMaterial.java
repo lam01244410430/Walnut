@@ -1,66 +1,47 @@
 package com.walnut.app.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate; // <--- QUAN TRỌNG: Dùng LocalDate
 
 @Entity
-@Table(name = "training_materials") // Tên bảng trong Database
+@Table(name = "training_material")
 public class TrainingMaterial {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "material_id", length = 20)
+    private String materialID;
 
-    @Column(nullable = false)
-    private String title;        // 资料标题 (Tiêu đề tài liệu)
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
-    @Column(length = 1000)
-    private String description;  // 描述 (Mô tả chi tiết)
+    @Column(name = "upload_date")
+    // KHÔNG DÙNG @Temporal NỮA
+    private LocalDate uploadDate;   // <--- Kiểu dữ liệu phải là LocalDate
 
-    @Column(nullable = false)
-    private String filePath;     // 文件路径 (Đường dẫn file lưu trên server)
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 
-    private String fileType;     // 文件类型 (Loại file: PDF, MP4, JPG...)
+    public TrainingMaterial() {}
 
-    private Long fileSize;       // 文件大小 (Kích thước file - tính bằng byte)
-
-    private LocalDateTime uploadDate; // 上传时间 (Thời gian đăng)
-
-    // --- Constructors ---
-
-    public TrainingMaterial() {
-        this.uploadDate = LocalDateTime.now(); // Tự động lấy giờ hiện tại khi tạo
+    // Constructor cập nhật
+    public TrainingMaterial(String materialID, String content, LocalDate uploadDate, Admin admin) {
+        this.materialID = materialID;
+        this.content = content;
+        this.uploadDate = uploadDate;
+        this.admin = admin;
     }
 
-    public TrainingMaterial(String title, String description, String filePath, String fileType, Long fileSize) {
-        this.title = title;
-        this.description = description;
-        this.filePath = filePath;
-        this.fileType = fileType;
-        this.fileSize = fileSize;
-        this.uploadDate = LocalDateTime.now();
-    }
+    // Getters & Setters
+    public String getMaterialID() { return materialID; }
+    public void setMaterialID(String materialID) { this.materialID = materialID; }
 
-    // --- Getters and Setters ---
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public LocalDate getUploadDate() { return uploadDate; }
+    public void setUploadDate(LocalDate uploadDate) { this.uploadDate = uploadDate; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public String getFilePath() { return filePath; }
-    public void setFilePath(String filePath) { this.filePath = filePath; }
-
-    public String getFileType() { return fileType; }
-    public void setFileType(String fileType) { this.fileType = fileType; }
-
-    public Long getFileSize() { return fileSize; }
-    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
-
-    public LocalDateTime getUploadDate() { return uploadDate; }
-    public void setUploadDate(LocalDateTime uploadDate) { this.uploadDate = uploadDate; }
+    public Admin getAdmin() { return admin; }
+    public void setAdmin(Admin admin) { this.admin = admin; }
 }

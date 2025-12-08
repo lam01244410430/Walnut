@@ -40,7 +40,7 @@ public class ApiController {
     // 2. DỰ BÁO SẢN LƯỢNG (产量预测)
     // ==========================================
     @GetMapping("/predict/{farmerId}")
-    public ResponseEntity<?> predictYield(@PathVariable Long farmerId) {
+    public ResponseEntity<?> predictYield(@PathVariable String farmerId) {
         // Kiểm tra nông dân có tồn tại không
         if (!farmerRepo.existsById(farmerId)) {
             return ResponseEntity.badRequest().body("错误: 找不到农民 (Lỗi: Không tìm thấy nông dân)");

@@ -2,12 +2,13 @@ package com.walnut.app.repository;
 
 import com.walnut.app.model.PestDisease;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
-// Sửa <PestDisease, String> thành <PestDisease, Long>
-public interface PestRepository extends JpaRepository<PestDisease, Long> {
+@Repository
+public interface PestRepository extends JpaRepository<PestDisease, String> {
 
-    // Tìm kiếm: Nếu Tên chứa từ khóa HOẶC Triệu chứng chứa từ khóa (Không phân biệt hoa thường)
-    // Tương ứng với lệnh SQL: ... WHERE lower(symptoms) LIKE %keyword% OR lower(name) LIKE %keyword%
+    // Khai báo hàm này để Spring Data JPA tự động tạo câu lệnh SQL tìm kiếm
+    // Tìm theo Symptoms (Triệu chứng) HOẶC Name (Tên bệnh), không phân biệt hoa thường
     List<PestDisease> findBySymptomsContainingIgnoreCaseOrNameContainingIgnoreCase(String symptoms, String name);
 }

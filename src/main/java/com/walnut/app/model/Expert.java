@@ -1,41 +1,58 @@
 package com.walnut.app.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "expert") // Tên bảng: 专家表 (Bảng Chuyên gia)
+@Table(name = "expert")
 public class Expert {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 编号 (Mã số)
+    @Column(name = "expert_id", length = 20)
+    private String expertID;
 
-    @Column(nullable = false, unique = true)
-    private String username; // 用户名 (Tên đăng nhập)
+    @Column(nullable = false, length = 20)
+    private String name;
+
+    @Column(unique = true, nullable = false)
+    private String username; // Đây là Số điện thoại đăng nhập
 
     @Column(nullable = false)
-    private String password; // 密码 (Mật khẩu)
+    private String password;
 
-    @Column(nullable = false)
-    private String name; // 姓名 (Họ tên hiển thị - VD: 李教授)
+    @Column(length = 50)
+    private String specialty; // Chuyên môn
 
-    private String specialization; // 专业领域 (Chuyên môn - VD: 病虫害防治)
+    private String email;
 
-    // --- Constructors (构造函数) ---
+    // --- BỔ SUNG TRƯỜNG PHONE ĐỂ HẾT LỖI ---
+    @Column(length = 20)
+    private String phone;
+    // ---------------------------------------
 
+    // 1 Expert -> Nhiều Consultation
+    @OneToMany(mappedBy = "expert", fetch = FetchType.LAZY)
+    private List<Consultation> consultationList = new ArrayList<>();
+
+    // --- CONSTRUCTORS ---
     public Expert() {}
 
-    public Expert(String username, String password, String name, String specialization) {
+    public Expert(String expertID, String name, String username, String password, String specialty, String phone) {
+        this.expertID = expertID;
+        this.name = name;
         this.username = username;
         this.password = password;
-        this.name = name;
-        this.specialization = specialization;
+        this.specialty = specialty;
+        this.phone = phone;
     }
 
-    // --- Getters and Setters (获取和设置方法) ---
+    // --- GETTERS & SETTERS ---
+    public String getExpertID() { return expertID; }
+    public void setExpertID(String expertID) { this.expertID = expertID; }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
@@ -43,9 +60,21 @@ public class Expert {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getSpecialty() { return specialty; }
+    public void setSpecialty(String specialty) { this.specialty = specialty; }
 
-    public String getSpecialization() { return specialization; }
-    public void setSpecialization(String specialization) { this.specialization = specialization; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    // --- ĐÂY LÀ HÀM BẠN ĐANG THIẾU ---
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    // ---------------------------------
+
+    public List<Consultation> getConsultationList() { return consultationList; }
+    public void setConsultationList(List<Consultation> consultationList) { this.consultationList = consultationList; }
+
+    public boolean matchSpecialty(String field) {
+        return this.specialty != null && this.specialty.contains(field);
+    }
 }

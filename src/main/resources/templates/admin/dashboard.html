@@ -1,34 +1,127 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘 - 掌上核桃 (Dashboard)</title>
 
-<head th:replace="fragments/head :: common_head('后台仪表盘')">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-custom { border: none; border-radius: 15px; transition: transform 0.3s; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        .card-custom:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); }
+        .text-primary-green { color: #198754; }
+
+        /* Style cho icon trạng thái trống */
+        .empty-state-icon {
+            color: #dee2e6; /* Màu xám rất nhạt */
+            font-size: 4rem; /* Kích thước icon */
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
+<body>
 
-<body style="display: flex;">
+<div class="d-flex" style="min-height: 100vh;">
 
-<div th:replace="fragments/sidebar :: admin_sidebar('dashboard')"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<div class="main-content" style="flex: 1; padding: 20px; display: flex; flex-direction: column;">
+    <div class="w-100 d-flex flex-column bg-light">
 
-    <h2 class="text-green">管理概览 (Tổng quan quản lý)</h2>
+        <div th:replace="~{fragments/header :: header}"></div>
 
-    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-        <div style="flex: 1; background: white; padding: 20px; border-radius: 8px; border-left: 5px solid #2e7d32; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h3>注册农户</h3>
-            <p style="font-size: 24px; font-weight: bold;" th:text="${userCount} + ' 户'"></p>
+        <div class="container-fluid p-4 flex-grow-1">
+            <h4 class="mb-4 fw-bold text-secondary">
+                <i class="fas fa-tachometer-alt me-2"></i>系统概览 (Tổng quan)
+            </h4>
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <div class="card card-custom h-100 bg-white">
+                        <div class="card-body d-flex align-items-center justify-content-between p-4">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-2 fw-bold" style="font-size: 0.85rem;">
+                                    总用户数 (Users)
+                                </h6>
+                                <h2 class="fw-bold text-dark mb-0"
+                                    th:text="${userCount != null and userCount > 0 ? userCount : '-'}">-</h2>
+                            </div>
+                            <div class="icon-shape bg-success bg-opacity-10 text-success p-3 rounded-circle">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-custom h-100 bg-white">
+                        <div class="card-body d-flex align-items-center justify-content-between p-4">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-2 fw-bold" style="font-size: 0.85rem;">
+                                    种植总面积 (Total Area)
+                                </h6>
+                                <h2 class="fw-bold text-dark mb-0"
+                                    th:text="${totalArea != null and totalArea > 0 ? totalArea + ' 亩' : '-'}">-</h2>
+                            </div>
+                            <div class="icon-shape bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+                                <i class="fas fa-map-marked-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-custom h-100 bg-white border-start border-danger border-5">
+                        <div class="card-body d-flex align-items-center justify-content-between p-4">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-2 fw-bold" style="font-size: 0.85rem;">
+                                    病虫害预警 (Alerts)
+                                </h6>
+                                <h2 class="fw-bold text-danger mb-0"
+                                    th:text="${pestWarnings != null and pestWarnings > 0 ? pestWarnings : '-'}">-</h2>
+                            </div>
+                            <div class="icon-shape bg-danger bg-opacity-10 text-danger p-3 rounded-circle">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-white py-3 border-bottom-0">
+                            <h5 class="mb-0 fw-bold text-primary-green">
+                                <i class="fas fa-chart-line me-2"></i> 种植数据分析 (Data Analysis)
+                            </h5>
+                        </div>
+
+                        <div class="card-body text-center py-5" style="background-color: #ffffff; min-height: 300px;">
+
+                            <div th:if="${chartData != null}" class="w-100 h-100">
+                                <canvas id="growthChart"></canvas>
+                            </div>
+
+                            <div th:if="${chartData == null}" class="d-flex flex-column align-items-center justify-content-center h-100 mt-4">
+                                <i class="fas fa-chart-bar empty-state-icon"></i>
+                                <h6 class="text-muted fw-bold">暂无数据 (No Data Available)</h6>
+                                <p class="text-secondary small mb-0">目前没有足够的分析数据 (Insufficient data for analysis)</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="flex: 1; background: white; padding: 20px; border-radius: 8px; border-left: 5px solid #2e7d32; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h3>种植面积</h3>
-            <p style="font-size: 24px; font-weight: bold;" th:text="${totalArea} + ' 亩'"></p>
-        </div>
-        <div style="flex: 1; background: white; padding: 20px; border-radius: 8px; border-left: 5px solid #d32f2f; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h3>病虫害预警</h3>
-            <p style="font-size: 24px; font-weight: bold; color: #d32f2f;" th:text="${pestWarnings} + ' 条'"></p>
-        </div>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </div>
-
-    <div th:replace="fragments/footer :: copyright"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

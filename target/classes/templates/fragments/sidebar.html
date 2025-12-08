@@ -1,31 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="admin_sidebar(activePage)" class="sidebar">
-    <h2>掌上核桃 <br><small style="font-size: 14px; opacity: 0.8;">管理系统</small></h2>
+<meta charset="UTF-8">
 
-    <a th:href="@{/admin/dashboard}"
-       th:classappend="${activePage == 'dashboard'} ? 'active-link'">
-        📊 仪表盘 (Dashboard)
+<div th:fragment="sidebar"
+     class="d-flex flex-column flex-shrink-0 p-3 text-white bg-success"
+     style="width: 260px; min-height: 100vh;">
+
+    <a href="/admin/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <i class="fas fa-tree fa-2x me-2"></i>
+        <span class="fs-4 fw-bold">掌上核桃</span>
     </a>
 
-    <a th:href="@{/admin/upload}"
-       th:classappend="${activePage == 'upload'} ? 'active-link'">
-        ☁️ 数据上传 (Upload)
+    <hr>
+
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="/admin/dashboard"
+               th:classappend="${activeTab == 'dashboard'} ? 'active bg-warning text-dark' : 'text-white'"
+               class="nav-link">
+                <i class="fas fa-tachometer-alt me-2"></i> 仪表盘 (Dashboard)
+            </a>
+        </li>
+        <li>
+            <a href="/admin/upload"
+               th:classappend="${activeTab == 'upload'} ? 'active bg-warning text-dark' : 'text-white'"
+               class="nav-link">
+                <i class="fas fa-cloud-upload-alt me-2"></i> 上传资料 (Upload)
+            </a>
+        </li>
+        <li>
+            <a href="/admin/users"
+               th:classappend="${activeTab == 'users'} ? 'active bg-warning text-dark' : 'text-white'"
+               class="nav-link">
+                <i class="fas fa-users me-2"></i> 用户管理 (Users)
+            </a>
+        </li>
+    </ul>
+
+    <hr> <div class="d-flex flex-column gap-1">
+    <a href="/" class="nav-link text-white">
+        <i class="fas fa-home me-2"></i> 首页 (Home)
     </a>
 
-    <a th:href="@{/admin/users}"
-       th:classappend="${activePage == 'users'} ? 'active-link'">
-        👥 用户管理 (Users)
-    </a>
-
-    <a th:href="@{/}" target="_blank" style="color: #c8e6c9; margin-top: 20px; border-top: 1px solid #2e7d32;">
-        🏠 返回前台 (Trang chủ)
-    </a>
-
-    <a th:href="@{/logout}" style="margin-top: auto; background-color: #144a19; color: #ffcdd2;">
-        🚪 退出登录 (Logout)
-    </a>
+    <form th:action="@{/logout}" method="post" class="w-100">
+        <button type="submit" class="nav-link text-white w-100 text-start bg-transparent border-0">
+            <i class="fas fa-sign-out-alt me-2"></i> 注销 (Logout)
+        </button>
+    </form>
 </div>
+
+</div>
+
 </body>
 </html>

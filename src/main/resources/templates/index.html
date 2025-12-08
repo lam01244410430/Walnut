@@ -2,92 +2,257 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>首页 - 掌上核桃 (Trang chủ)</title>
+    <title>首页 - 掌上核桃 (Home)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        /* CSS riêng cho trang chủ */
+        /* --- General Styles --- */
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; }
+
+        /* --- Hero Section --- */
         .hero-section {
-            background: linear-gradient(rgba(27, 94, 32, 0.8), rgba(27, 94, 32, 0.8)), url('/images/background.jpg');
+            background: linear-gradient(rgba(27, 94, 32, 0.9), rgba(27, 94, 32, 0.8));
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 100px 20px;
+            padding: 120px 20px 100px;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            position: relative;
         }
-        .hero-title { font-size: 3rem; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .hero-subtitle { font-size: 1.2rem; margin-top: 10px; opacity: 0.9; }
+        .hero-title { font-size: 3.5rem; margin: 0; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero-subtitle { font-size: 1.3rem; margin-top: 15px; opacity: 0.9; }
 
+        /* --- TOP RIGHT HEADER STYLES --- */
+        .top-header {
+            position: absolute;
+            top: 25px;
+            right: 40px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* --- Guest Buttons --- */
+        .btn-auth {
+            background-color: rgba(255,255,255,0.15);
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+        }
+        .btn-auth:hover {
+            background-color: white;
+            color: #2e7d32 !important;
+            transform: translateY(-2px);
+        }
+
+        /* --- Account Management --- */
+        .account-wrapper {
+            position: relative;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+
+        .account-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.05rem;
+            padding: 8px 15px;
+            border-radius: 25px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: background 0.3s;
+        }
+
+        .account-wrapper:hover .account-trigger {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .account-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 260px; /* Rộng hơn xíu để chứa text dài */
+            background-color: #ffffff;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 8px 0;
+            display: none;
+            margin-top: 5px;
+            text-align: left; /* Căn trái text trong menu */
+        }
+
+        .account-dropdown::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: transparent;
+        }
+
+        .account-wrapper:hover .account-dropdown {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .account-dropdown a {
+            color: #333333 !important;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .account-dropdown a:hover {
+            background-color: #f1f8e9;
+            color: #2e7d32 !important;
+        }
+
+        .dropdown-icon {
+            width: 20px;
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        .logout-link {
+            border-top: 1px solid #eee;
+            color: #d32f2f !important;
+            margin-top: 5px;
+        }
+        .logout-link .dropdown-icon { color: #d32f2f; }
+        .logout-link:hover { background-color: #ffebee !important; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Feature Grid --- */
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
             max-width: 1200px;
-            margin: 0 auto 50px auto;
+            margin: 0 auto;
             padding: 0 20px;
         }
-
         .feature-card {
             background: white;
-            border-radius: 10px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
             border-top: 5px solid #2e7d32;
         }
-        .feature-card:hover { transform: translateY(-10px); }
-        .icon-large { font-size: 50px; margin-bottom: 15px; display: block; }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
+        .icon-large { font-size: 60px; margin-bottom: 20px; display: block; color: #2e7d32; }
         .card-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 25px;
-            background: #2e7d32;
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
+            display: inline-block; margin-top: 25px; padding: 12px 30px;
+            background: #2e7d32; color: white; text-decoration: none;
+            border-radius: 50px; transition: background 0.3s;
         }
-        .card-btn:hover { background: #1b5e20; }
+        .card-btn:hover { background: #1b5e20; color: white; }
     </style>
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: main_header}"></div>
+<div class="d-flex flex-column" style="min-height: 100vh;">
 
-<div class="hero-section">
-    <h1 class="hero-title">掌上核桃 (Palm Walnut)</h1>
-    <p class="hero-subtitle">智慧农业管理系统 - 科技助力核桃丰收</p>
-    <a th:if="${session.user == null}" href="/login" style="display: inline-block; margin-top: 30px; padding: 15px 40px; background: #ffeb3b; color: #333; font-weight: bold; text-decoration: none; border-radius: 30px;">
-        立即开始 🚀
-    </a>
+    <div class="flex-grow-1 pb-5">
+        <div class="hero-section">
+
+            <div class="top-header">
+
+                <div th:if="${session.user == null}" class="d-flex gap-2">
+                    <a href="/login" class="btn-auth">
+                        <i class="fas fa-sign-in-alt"></i> 登录 (Login)
+                    </a>
+                    <a href="/register" class="btn-auth">
+                        <i class="fas fa-user-plus"></i> 注册 (Register)
+                    </a>
+                </div>
+
+                <div th:if="${session.user != null}" class="account-wrapper">
+
+                    <div class="account-trigger">
+                        <span>您好, <span th:text="${session.user.username}">User</span></span>
+                        <i class="fas fa-caret-down"></i>
+                    </div>
+
+                    <div class="account-dropdown">
+
+                        <a th:href="@{${session.role == 'ADMIN' ? '/admin/dashboard' : (session.role == 'EXPERT' ? '/expert/dashboard' : '/farmer/dashboard')}}">
+                            <span class="dropdown-icon"><i class="fas fa-tachometer-alt"></i></span>
+                            <span th:if="${session.role == 'ADMIN'}">管理后台 (Admin Dashboard)</span>
+                            <span th:if="${session.role == 'EXPERT'}">专家工作台 (Expert Dashboard)</span>
+                            <span th:if="${session.role == 'FARMER'}">我的农业 (My Farm)</span>
+                        </a>
+
+                        <a th:href="@{/profile}">
+                            <span class="dropdown-icon"><i class="fas fa-cog"></i></span>
+                            <span>账号设置 (Settings)</span>
+                        </a>
+
+                        <a th:href="@{/logout}" class="logout-link">
+                            <span class="dropdown-icon"><i class="fas fa-sign-out-alt"></i></span>
+                            <span>退出登录 (Logout)</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <h1 class="hero-title"><i class="fas fa-tree me-3"></i>掌上核桃</h1>
+            <p class="hero-subtitle">智慧农业管理系统 - 科技助力核桃丰收</p>
+
+            <div th:if="${session.user == null}" style="margin-top: 40px;">
+                <a href="/login" class="btn btn-warning btn-lg rounded-pill px-5 fw-bold shadow">
+                    立即开始 (Start Now)
+                </a>
+            </div>
+
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="icon-large"><i class="fas fa-search-plus"></i></span>
+                <h3 class="fw-bold">智能病害识别</h3>
+                <p class="text-muted">快速查询核桃常见病虫害，获取专家防治建议。</p>
+                <a href="/search" class="card-btn">去查询</a>
+            </div>
+            <div class="feature-card">
+                <span class="icon-large"><i class="fas fa-chart-line"></i></span>
+                <h3 class="fw-bold">产量预测分析</h3>
+                <p class="text-muted">基于历史数据分析，科学预测下一季产量。</p>
+                <a href="/predict" class="card-btn">看数据</a>
+            </div>
+            <div class="feature-card">
+                <span class="icon-large"><i class="fas fa-user-tie"></i></span>
+                <h3 class="fw-bold">专家在线咨询</h3>
+                <p class="text-muted">遇到种植难题？直接向农业专家提问。</p>
+                <a href="/consultation" class="card-btn">问专家</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
-
-<div class="feature-grid">
-
-    <div class="feature-card">
-        <span class="icon-large">🔍</span>
-        <h3>智能病害识别</h3>
-        <p>快速查询核桃常见病虫害，获取专家防治建议。</p>
-        <a href="/search" class="card-btn">去查询</a>
-    </div>
-
-    <div class="feature-card">
-        <span class="icon-large">📈</span>
-        <h3>产量预测分析</h3>
-        <p>基于历史数据分析，科学预测下一季产量。</p>
-        <a href="/predict" class="card-btn">看数据</a>
-    </div>
-
-    <div class="feature-card">
-        <span class="icon-large">👨‍🏫</span>
-        <h3>专家在线咨询</h3>
-        <p>遇到种植难题？直接向农业专家提问。</p>
-        <a href="/consultation" class="card-btn">问专家</a>
-    </div>
-
-</div>
-
-<div th:replace="~{fragments/footer :: copyright}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

@@ -1,80 +1,54 @@
 package com.walnut.app.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "consultation")
 public class Consultation {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "consultation_id", length = 20) // Quan trọng: Khớp với SQL
+    private String consultationID;
 
-    @Column(columnDefinition = "TEXT") // Cho phép lưu câu hỏi dài
     private String question;
-
-    @Column(columnDefinition = "TEXT") // Cho phép lưu câu trả lời dài
     private String answer;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate;
-
+    // Liên kết Farmer
     @ManyToOne
-    @JoinColumn(name = "farmer_id") // Liên kết với bảng Farmer
+    @JoinColumn(name = "farmer_id") // Khớp với SQL
     private Farmer farmer;
 
-    // --- Constructors ---
+    // Liên kết Expert
+    @ManyToOne
+    @JoinColumn(name = "expert_id") // Khớp với SQL
+    private Expert expert;
 
-    public Consultation() {
-        this.createDate = new Date(); // Tự động lấy ngày hiện tại khi khởi tạo rỗng
-    }
+    // --- CONSTRUCTORS ---
+    public Consultation() {}
 
-    public Consultation(String question, Farmer farmer) {
+    public Consultation(String consultationID, String question, Farmer farmer, Expert expert) {
+        this.consultationID = consultationID;
         this.question = question;
         this.farmer = farmer;
-        this.createDate = new Date();
+        this.expert = expert;
     }
 
-    // --- Getters and Setters (Đầy đủ) ---
+    // --- GETTERS & SETTERS ---
+    public String getConsultationID() { return consultationID; }
+    public void setConsultationID(String consultationID) { this.consultationID = consultationID; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getQuestion() { return question; }
+    public void setQuestion(String question) { this.question = question; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getAnswer() { return answer; }
+    public void setAnswer(String answer) { this.answer = answer; }
 
-    public String getQuestion() {
-        return question;
-    }
+    public Farmer getFarmer() { return farmer; }
+    public void setFarmer(Farmer farmer) { this.farmer = farmer; }
 
-    public void setQuestion(String question) {
-        this.question = question;
-    }
+    public Expert getExpert() { return expert; }
+    public void setExpert(Expert expert) { this.expert = expert; }
 
-    public String getAnswer() {
-        return answer;
-    }
-
-    // ĐÂY LÀ PHƯƠNG THỨC BẠN ĐANG CẦN
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Farmer getFarmer() {
-        return farmer;
-    }
-
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
-    }
+    // Helper để lấy tên hiển thị an toàn
+    public String getFarmerName() { return farmer != null ? farmer.getName() : "Unknown"; }
 }

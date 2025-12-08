@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <title>我的农业 (My Farm) - Farmer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; }
+
+        /* Sidebar riêng cho Farmer (Màu Xanh) */
+        .sidebar-farmer {
+            background-color: #2e7d32;
+            color: white;
+            min-height: 100vh;
+            min-width: 250px;
+            padding-top: 20px;
+        }
+        .sidebar-farmer .nav-link {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+            border-radius: 0;
+            padding: 12px 20px;
+        }
+        .sidebar-farmer .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar-farmer .nav-link.active {
+            background-color: #ffffff;
+            color: #2e7d32;
+            font-weight: bold;
+            border-left: 5px solid #ffca28; /* Điểm nhấn màu vàng */
+        }
+
+        /* Card Custom giống Admin */
+        .card-custom { border: none; border-radius: 15px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="min-height: 100vh;">
+
+    <div class="sidebar-farmer d-flex flex-column p-3">
+
+        <h3 class="text-center mb-4 fw-bold text-white">
+            <i class="fas fa-tractor me-2"></i>掌上核桃
+        </h3>
+
+        <div class="text-center mb-4 px-2">
+            <div class="bg-white text-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                <i class="fas fa-user fa-2x"></i>
+            </div>
+            <div class="fw-bold text-white" th:text="${farmer.name}">Farmer Name</div>
+            <div class="small text-white-50" th:text="${farmer.phone}">Phone</div>
+        </div>
+
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+            <button class="nav-link text-start active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button">
+                <i class="fas fa-id-card me-2" style="width: 25px;"></i> 个人信息 (Profile)
+            </button>
+
+            <button class="nav-link text-start" id="v-pills-questions-tab" data-bs-toggle="pill" data-bs-target="#v-pills-questions" type="button">
+                <i class="fas fa-question-circle me-2" style="width: 25px;"></i> 我的提问 (Questions)
+            </button>
+        </div>
+
+        <div class="mt-auto border-top border-white-50 pt-3">
+            <a class="nav-link text-start text-white" href="/">
+                <i class="fas fa-home me-2" style="width: 25px;"></i> 返回首页 (Home)
+            </a>
+            <a class="nav-link text-start text-white" href="/logout">
+                <i class="fas fa-sign-out-alt me-2" style="width: 25px;"></i> 退出 (Logout)
+            </a>
+        </div>
+
+    </div>
+
+    <div class="w-100 d-flex flex-column bg-light">
+
+        <div th:replace="~{fragments/header :: header}"></div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-success fw-bold"><i class="fas fa-chart-line me-2"></i>产量趋势与预测 (Yield Trend & Prediction)</h4>
+                        <span class="badge bg-warning text-dark fs-6">
+                    2025 预测: <span th:text="${predictedYield}"></span> kg
+                </span>
+                    </div>
+                    <div style="height: 300px;">
+                        <canvas id="yieldChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid p-4 flex-grow-1">
+            <div class="tab-content" id="v-pills-tabContent">
+
+                <div class="tab-pane fade show active" id="v-pills-profile">
+                    <h4 class="mb-4 fw-bold text-success">
+                        <i class="fas fa-user-circle me-2"></i> 个人信息管理
+                    </h4>
+                    <div class="card card-custom p-4 bg-white">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">用户名 (Username/Phone)</label>
+                                    <input type="text" class="form-control" th:value="${farmer.username}" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">姓名 (Full Name)</label>
+                                    <input type="text" class="form-control" th:value="${farmer.name}" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">联系电话 (Phone)</label>
+                                    <input type="text" class="form-control" th:value="${farmer.phone}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">种植地址 (Address)</label>
+                                    <input type="text" class="form-control" th:value="${farmer.address}">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success px-4"><i class="fas fa-save me-2"></i>更新信息 (Update)</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-questions">
+                    <h4 class="mb-4 fw-bold text-success">
+                        <i class="fas fa-history me-2"></i> 提问历史记录
+                    </h4>
+                    <div class="card card-custom p-0 bg-white overflow-hidden">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="bg-light text-secondary">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>问题内容 (Question)</th>
+                                <th>状态 (Status)</th>
+                                <th>操作 (Action)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="q : ${myQuestions}">
+                                <td class="ps-4 fw-bold" th:text="${q.consultationID}">ID</td>
+                                <td class="text-truncate" style="max-width: 300px;" th:text="${q.question}">Question</td>
+                                <td>
+                                    <span th:if="${q.answer != null}" class="badge bg-success">已回答</span>
+                                    <span th:if="${q.answer == null}" class="badge bg-warning text-dark">待回答</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" th:data-bs-target="'#modalView'+${q.consultationID}">
+                                        查看 (View)
+                                    </button>
+
+                                    <div class="modal fade" th:id="'modalView'+${q.consultationID}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-success text-white">
+                                                    <h5 class="modal-title">详情 (Details)</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="fw-bold">问：<span th:text="${q.question}" class="fw-normal"></span></p>
+                                                    <hr>
+                                                    <p class="fw-bold text-success">答：
+                                                        <span th:if="${q.answer != null}" th:text="${q.answer}" class="fw-normal text-dark"></span>
+                                                        <span th:if="${q.answer == null}" class="text-muted fw-normal">专家暂未回复...</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /* Lấy dữ liệu từ Controller (Thymeleaf) */
+    var years = /*[[${chartYears}]]*/ [];
+    var yields = /*[[${chartYields}]]*/ [];
+    var predictedVal = /*[[${predictedYield}]]*/ 0;
+
+    // Thêm năm dự đoán vào biểu đồ để hiển thị
+    var displayYears = [...years, 2025];
+    var displayYields = [...yields, predictedVal];
+
+    // Vẽ
+    var ctx = document.getElementById('yieldChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line', // Biểu đồ đường
+        data: {
+            labels: displayYears,
+            datasets: [{
+                label: '产量 (kg) - Sản lượng',
+                data: displayYields,
+                borderColor: '#2e7d32', // Màu xanh
+                backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                borderWidth: 3,
+                pointBackgroundColor: ['#2e7d32', '#2e7d32', '#d32f2f', '#2e7d32', '#ffca28'], // Năm 2023 bị đỏ (sụt giảm), 2025 vàng (dự đoán)
+                pointRadius: 5,
+                fill: true,
+                tension: 0.3 // Đường cong mềm mại
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: false }
+            }
+        }
+    });
+</script>
+</body>
+</html>
