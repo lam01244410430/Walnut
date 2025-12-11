@@ -10,13 +10,12 @@ import java.util.List;
 @Repository
 public interface ConsultationRepository extends JpaRepository<Consultation, String> {
 
-    // Cách 1: Tìm theo Object (Khuyên dùng)
+    // --- HÀM BẠN ĐANG THIẾU ---
+    // Tìm danh sách câu hỏi theo đối tượng Farmer
     List<Consultation> findByFarmer(Farmer farmer);
+    // -------------------------
 
-    // Cách 2: Nếu muốn tìm theo ID String
-    // Phải viết là findByFarmer_FarmerID vì trong Farmer biến tên là farmerID
-    List<Consultation> findByFarmer_FarmerID(String farmerID);
-
+    // Các hàm khác phục vụ cho Expert
     List<Consultation> findByExpertAndAnswerIsNull(Expert expert);
     List<Consultation> findByExpertAndAnswerIsNotNull(Expert expert);
 }

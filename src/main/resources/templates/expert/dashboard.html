@@ -83,7 +83,7 @@
 
                 <div class="tab-pane fade show active" id="v-pills-pending">
                     <h4 class="mb-4 fw-bold text-success">
-                        <i class="fas fa-clipboard-list me-2"></i> 待处理咨询
+                        <i class="fas fa-clipboard-list me-2"></i> 待处理咨询 (Pending Questions)
                     </h4>
 
                     <div class="card card-custom p-0 bg-white overflow-hidden">
@@ -97,39 +97,50 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="c : ${consultations}">
-                                <td class="ps-4 fw-bold" th:text="${c.consultationID}">ID</td>
+                            <tr th:each="q : ${pendingQuestions}">
+                                <td class="ps-4 fw-bold" th:text="${q.consultationID}">ID</td>
                                 <td>
-                                    <i class="fas fa-user text-muted me-2"></i>
-                                    <span th:text="${c.farmer != null ? c.farmer.name : 'Unknown'}">Name</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light text-success rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px; height:30px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span th:text="${q.farmer != null ? q.farmer.name : 'Unknown'}">Name</span>
+                                    </div>
                                 </td>
-                                <td class="text-truncate" style="max-width: 300px;" th:text="${c.question}">Question</td>
+                                <td class="text-truncate" style="max-width: 350px;" th:text="${q.question}">Nội dung câu hỏi...</td>
                                 <td>
-                                    <button class="btn btn-sm btn-success rounded-pill px-3" data-bs-toggle="modal" th:data-bs-target="'#replyModal'+${c.consultationID}">
+                                    <button class="btn btn-sm btn-success rounded-pill px-3"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#replyModal'+${q.consultationID}">
                                         <i class="fas fa-reply me-1"></i> 回复 (Reply)
                                     </button>
 
-                                    <div class="modal fade" th:id="'replyModal'+${c.consultationID}" tabindex="-1">
+                                    <div class="modal fade" th:id="'replyModal'+${q.consultationID}" tabindex="-1">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <form action="/expert/reply" method="post">
                                                     <div class="modal-header bg-success text-white">
-                                                        <h5 class="modal-title">回复咨询</h5>
+                                                        <h5 class="modal-title fw-bold">回复咨询 (Reply to Farmer)</h5>
                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <input type="hidden" name="consultationID" th:value="${c.consultationID}">
-                                                        <div class="p-3 bg-light rounded mb-3">
-                                                            <small class="text-muted">农户提问:</small>
-                                                            <p class="mb-0 fw-bold" th:text="${c.question}"></p>
+                                                        <input type="hidden" name="consultationID" th:value="${q.consultationID}">
+
+                                                        <div class="p-3 bg-light rounded mb-3 border-start border-4 border-success">
+                                                            <small class="text-muted fw-bold">农户提问 (Question):</small>
+                                                            <p class="mb-0 mt-1" th:text="${q.question}"></p>
                                                         </div>
+
                                                         <div class="mb-3">
-                                                            <label class="form-label fw-bold">您的建议:</label>
-                                                            <textarea name="answer" class="form-control" rows="4" required></textarea>
+                                                            <label class="form-label fw-bold">您的建议 (Your Answer):</label>
+                                                            <textarea name="answer" class="form-control" rows="5" placeholder="请输入专业的指导意见..." required></textarea>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="submit" class="btn btn-success">发送 (Send)</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消 (Cancel)</button>
+                                                        <button type="submit" class="btn btn-success px-4">
+                                                            <i class="fas fa-paper-plane me-2"></i>发送 (Send)
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -137,8 +148,12 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(consultations)}">
-                                <td colspan="4" class="text-center py-5 text-muted">目前没有待回答的问题</td>
+
+                            <tr th:if="${#lists.isEmpty(pendingQuestions)}">
+                                <td colspan="4" class="text-center py-5">
+                                    <i class="fas fa-check-circle text-success mb-3" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mb-0">太棒了！所有问题都已处理 (All questions answered)</p>
+                                </td>
                             </tr>
                             </tbody>
                         </table>

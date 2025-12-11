@@ -24,32 +24,38 @@ public class ExpertController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
+        // 1. Kiểm tra đăng nhập
         Expert sessionUser = (Expert) session.getAttribute("user");
         if (sessionUser == null) return "redirect:/login";
 
+        // 2. Lấy thông tin Chuyên gia mới nhất
         Expert currentExpert = expertRepo.findById(sessionUser.getExpertID()).orElse(null);
         model.addAttribute("expert", currentExpert);
 
-        // 1. QUERY DB: Tìm câu hỏi CHƯA trả lời dành cho chuyên gia này
-        List<Consultation> pendingQuestions = consultationRepo.findByExpertAndAnswerIsNull(currentExpert);
-        model.addAttribute("consultations", pendingQuestions);
+        // 3. Lấy danh sách PENDING (Chưa trả lời)
+        List<Consultation> pendingList = consultationRepo.findByExpertAndAnswerIsNull(currentExpert);
+        model.addAttribute("pendingQuestions", pendingList);
+
+        // 4. Lấy danh sách HISTORY (Đã trả lời)
+        List<Consultation> historyList = consultationRepo.findByExpertAndAnswerIsNotNull(currentExpert);
+        model.addAttribute("historyQuestions", historyList);
 
         return "expert/dashboard";
     }
 
-    // Xử lý khi chuyên gia bấm nút "Gửi" câu trả lời
+    // --- XỬ LÝ TRẢ LỜI CÂU HỎI ---
     @PostMapping("/reply")
-    public String replyQuestion(@RequestParam String consultationID,
-                                @RequestParam String answer) {
-        // 1. Tìm câu hỏi trong DB
+    public String handleReply(@RequestParam String consultationID,
+                              @RequestParam String answer) {
+        // Tìm câu hỏi trong DB
         Consultation consult = consultationRepo.findById(consultationID).orElse(null);
 
         if (consult != null) {
-            // 2. Cập nhật câu trả lời
+            // Cập nhật câu trả lời
             consult.setAnswer(answer);
-            // 3. Lưu xuống DB thật
-            consultationRepo.save(consult);
+            consultationRepo.save(consult); // Lưu xuống DB
         }
-        return "redirect:/expert/dashboard";
+
+        return "redirect:/expert/dashboard"; // Load lại trang để thấy nó chuyển sang tab Lịch sử
     }
 }
