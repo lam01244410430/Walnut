@@ -72,4 +72,22 @@ public class MainController {
         model.addAttribute("error", "登录失败：用户名或密码错误 (Sai tên đăng nhập hoặc mật khẩu)");
         return "login";
     }
+
+    // Route cho nút '去查询' (Tra cứu sâu bệnh)
+    @GetMapping("/search-pest")
+    public String searchPestPage() {
+        return "search_pest"; // Trả về giao diện tìm kiếm
+    }
+
+    // Route cho nút '看数据' (Dự đoán sản lượng)
+    @GetMapping("/predict-yield")
+    public String predictYieldPage() {
+        return "predict_yield"; // Trả về giao diện dự đoán
+    }
+
+    // Route cho nút '问专家' (Tư vấn chuyên gia)
+    @GetMapping("/consultation")
+    public String consultationPage() {
+        return "consultation"; // Trả về giao diện tư vấn
+    }
 }

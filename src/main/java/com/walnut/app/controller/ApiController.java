@@ -43,7 +43,7 @@ public class ApiController {
     public ResponseEntity<?> predictYield(@PathVariable String farmerId) {
         // Kiểm tra nông dân có tồn tại không
         if (!farmerRepo.existsById(farmerId)) {
-            return ResponseEntity.badRequest().body("错误: 找不到农民 (Lỗi: Không tìm thấy nông dân)");
+            return ResponseEntity.badRequest().body("错误: 找不到农民!");
         }
 
         double prediction = systemService.predictYield(farmerId);
@@ -53,7 +53,7 @@ public class ApiController {
         response.put("farmerId", farmerId);
         response.put("predictedYield", prediction);
         response.put("unit", "kg (公斤)");
-        response.put("message", "基于历史数据增长 10% (Dựa trên dữ liệu lịch sử tăng 10%)");
+        response.put("message", "基于历史数据增长10%");
 
         return ResponseEntity.ok(response);
     }
