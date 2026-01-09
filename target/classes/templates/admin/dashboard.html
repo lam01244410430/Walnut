@@ -34,7 +34,7 @@
 
         <div class="container-fluid p-4 flex-grow-1">
             <h4 class="mb-4 fw-bold text-secondary">
-                <i class="fas fa-tachometer-alt me-2"></i>系统概览 (Tổng quan)
+                <i class="fas fa-tachometer-alt me-2"></i>系统概览 (System Overview)
             </h4>
 
             <div class="row g-4">
@@ -123,5 +123,40 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /* Lấy dữ liệu từ Controller */
+    var hasData = /*[[${chartData != null}]]*/ false;
+
+    if (hasData) {
+        var years = /*[[${chartYears}]]*/ [];
+        var yields = /*[[${chartYields}]]*/ [];
+
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar', // Admin xem dạng cột (Bar) sẽ trực quan hơn cho tổng sản lượng
+            data: {
+                labels: years,
+                datasets: [{
+                    label: '全平台总产量 (Total Yield - kg)',
+                    data: yields,
+                    backgroundColor: 'rgba(25, 135, 84, 0.6)', // Màu xanh lá
+                    borderColor: 'rgba(25, 135, 84, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '总产量 (Total Yield)' }
+                    }
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>

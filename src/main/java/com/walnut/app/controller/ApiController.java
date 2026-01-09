@@ -79,7 +79,7 @@ public class ApiController {
             }
         }
 
-        return ResponseEntity.status(401).body("登录失败: 用户名或密码错误 (Đăng nhập thất bại)");
+        return ResponseEntity.status(401).body("登录失败: 用户名或密码错误");
     }
 
     // ==========================================
@@ -96,7 +96,7 @@ public class ApiController {
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
-        response.put("message", "问题已发送给专家 (Câu hỏi đã gửi đến chuyên gia)");
+        response.put("message", "问题已发送给专家");
         response.put("ticketId", "TICKET-" + System.currentTimeMillis());
 
         return ResponseEntity.ok(response);

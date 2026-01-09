@@ -11,10 +11,7 @@ import org.springframework.web.multipart.MultipartFile; // Cần cái này để
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; // Cần cái này để hiện thông báo
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -27,6 +24,8 @@ public class AdminController {
     @Autowired private TrainingRepository materialRepo;
     @Autowired private FarmerRepository farmerRepo;
     @Autowired private ExpertRepository expertRepo;
+    @Autowired private ProductionRepository prodRepo;
+    @Autowired private ConsultationRepository consultationRepo;
 
     // --- 1. DASHBOARD ---
     @GetMapping("/dashboard")
@@ -36,7 +35,50 @@ public class AdminController {
 
         Admin currentAdmin = adminRepo.findById(sessionUser.getAdminID()).orElse(null);
         model.addAttribute("admin", currentAdmin);
-        model.addAttribute("materials", materialRepo.findAll());
+
+        // --- A. TÍNH TOÁN SỐ LIỆU THỐNG KÊ (STATISTICS) ---
+
+        // 1. Tổng người dùng (Total Users)
+        long userCount = farmerRepo.count() + expertRepo.count() + adminRepo.count();
+        model.addAttribute("userCount", userCount);
+
+        // 2. Tổng diện tích (Total Area) & Dữ liệu biểu đồ
+        List<ProductionData> allProduction = prodRepo.findAll();
+
+        // Tính tổng diện tích từ tất cả các bản ghi (hoặc logic khác tùy bạn)
+        // Ở đây tôi lấy tổng diện tích của các bản ghi mới nhất hoặc cộng dồn
+        double totalArea = allProduction.stream().mapToDouble(ProductionData::getArea).sum();
+        model.addAttribute("totalArea", Math.round(totalArea * 100.0) / 100.0); // Làm tròn 2 số lẻ
+
+        // 3. Cảnh báo (Alerts) - Ở đây lấy số câu hỏi chưa trả lời làm cảnh báo
+        long pendingCount = consultationRepo.findByAnswerIsNull().size();
+        model.addAttribute("pestWarnings", pendingCount);
+
+        // --- B. CHUẨN BỊ DỮ LIỆU BIỂU ĐỒ (CHART DATA) ---
+        // Tổng hợp sản lượng của TOÀN BỘ hệ thống theo năm
+        if (!allProduction.isEmpty()) {
+            Map<Integer, Double> yieldByYear = new HashMap<>();
+
+            for (ProductionData pd : allProduction) {
+                yieldByYear.merge(pd.getYear(), pd.getYield(), Double::sum);
+            }
+
+            // Sắp xếp theo năm
+            List<Integer> years = new ArrayList<>(yieldByYear.keySet());
+            Collections.sort(years);
+
+            List<Double> yields = new ArrayList<>();
+            for (Integer year : years) {
+                yields.add(yieldByYear.get(year));
+            }
+
+            model.addAttribute("chartData", true); // Cờ để hiện khung biểu đồ
+            model.addAttribute("chartYears", years);
+            model.addAttribute("chartYields", yields);
+        } else {
+            model.addAttribute("chartData", null);
+        }
+
         return "admin/dashboard";
     }
 
@@ -66,48 +108,57 @@ public class AdminController {
         if (sessionUser != null) {
             Admin dbAdmin = adminRepo.findById(sessionUser.getAdminID()).orElse(null);
 
-            // Kiểm tra admin tồn tại VÀ file không rỗng
             if (dbAdmin != null && !file.isEmpty()) {
                 try {
                     // --- BƯỚC 1: TẠO THƯ MỤC LƯU TRỮ ---
-                    // Lấy đường dẫn thư mục gốc của dự án + "/uploads/"
                     String uploadDir = System.getProperty("user.dir") + "/uploads/";
                     File dir = new File(uploadDir);
+                    if (!dir.exists()) dir.mkdirs();
 
-                    // Nếu thư mục chưa có thì tạo mới
-                    if (!dir.exists()) {
-                        dir.mkdirs();
-                    }
-
-                    // --- BƯỚC 2: LƯU FILE VÀO Ổ CỨNG ---
+                    // --- BƯỚC 2: LƯU FILE ---
                     String originalFilename = file.getOriginalFilename();
-                    // Tạo đường dẫn file đích
                     File serverFile = new File(uploadDir + originalFilename);
-
-                    // Lệnh quan trọng nhất: Ghi dữ liệu file vào ổ cứng
                     file.transferTo(serverFile);
 
-                    // --- BƯỚC 3: LƯU THÔNG TIN VÀO DATABASE ---
-                    TrainingMaterial material = new TrainingMaterial();
-                    material.setMaterialID("MAT-" + UUID.randomUUID().toString().substring(0, 6));
+                    // --- BƯỚC 3: TÍNH TOÁN MATERIAL_ID TỰ TĂNG ---
+                    String nextID = "MAT-001"; // Mặc định
+                    TrainingMaterial lastMat = materialRepo.findTopByOrderByMaterialIDDesc();
 
-                    // Lưu nội dung là Tiêu đề + Tên file đã lưu
+                    if (lastMat != null) {
+                        String currentMaxID = lastMat.getMaterialID();
+                        // Kiểm tra xem ID cũ có đúng định dạng "MAT-" không
+                        if (currentMaxID != null && currentMaxID.startsWith("MAT-")) {
+                            try {
+                                // Tách phần số: MAT-005 -> 5
+                                int number = Integer.parseInt(currentMaxID.split("-")[1]);
+                                // Tăng lên 1 và format lại thành 006
+                                nextID = String.format("MAT-%03d", number + 1);
+                            } catch (Exception e) {
+                                // Nếu ID cũ không đúng chuẩn số thì reset về 001
+                                nextID = "MAT-001";
+                            }
+                        }
+                    }
+
+                    // --- BƯỚC 4: LƯU VÀO DATABASE ---
+                    TrainingMaterial material = new TrainingMaterial();
+                    material.setMaterialID(nextID); // ID tự tăng
                     material.setContent(title + " (File: " + originalFilename + ")");
 
+                    // LocalDate.now() sẽ lưu vào DB dưới dạng yyyy-MM-dd
                     material.setUploadDate(LocalDate.now());
                     material.setAdmin(dbAdmin);
 
                     materialRepo.save(material);
 
-                    // Thông báo thành công kèm đường dẫn để bạn dễ kiểm tra
-                    redirectAttributes.addFlashAttribute("message", "上传成功！");
+                    redirectAttributes.addFlashAttribute("message", "上传成功!");
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    redirectAttributes.addFlashAttribute("message", "文件保存失败： " + e.getMessage());
+                    redirectAttributes.addFlashAttribute("message", "Error: " + e.getMessage());
                 }
             } else {
-                redirectAttributes.addFlashAttribute("message", "错误：文件为空或未选择文件。");
+                redirectAttributes.addFlashAttribute("message", "Error: Empty File.");
             }
         }
         return "redirect:/admin/upload";
@@ -192,31 +243,69 @@ public class AdminController {
         return "admin/users";
     }
 
+    private String generateNextId(String prefix, String currentMaxId) {
+        // Mặc định nếu chưa có ai thì bắt đầu từ 001
+        String nextId = prefix + "-001";
+
+        if (currentMaxId != null && currentMaxId.startsWith(prefix + "-")) {
+            try {
+                // Tách số: FARMER-005 -> 5
+                String numberPart = currentMaxId.split("-")[1];
+                int number = Integer.parseInt(numberPart);
+
+                // Tăng lên 1 và format lại 3 chữ số: 6 -> 006
+                nextId = String.format("%s-%03d", prefix, number + 1);
+            } catch (Exception e) {
+                // Nếu ID cũ sai định dạng, reset về 001
+            }
+        }
+        return nextId;
+    }
+
+    // --- SỬA HÀM ADD USER ---
     @PostMapping("/users/add")
     public String addUser(@ModelAttribute UserRow form) {
-        String uuid = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+
         switch (form.getRole()) {
             case "FARMER":
+                // 1. Tìm ID lớn nhất hiện tại
+                Farmer lastFarmer = farmerRepo.findTopByOrderByFarmerIDDesc();
+                String maxFarmerId = (lastFarmer != null) ? lastFarmer.getFarmerID() : null;
+
+                // 2. Tính ID mới
+                String newFarmerId = generateNextId("FARMER", maxFarmerId);
+
+                // 3. Tạo và lưu
                 Farmer f = new Farmer();
-                f.setFarmerID("FARMER-" + uuid);
+                f.setFarmerID(newFarmerId);
                 f.setUsername(form.getUsername());
                 f.setPhone(form.getUsername());
                 f.setName(form.getName());
                 f.setPassword(form.getPassword());
                 farmerRepo.save(f);
                 break;
+
             case "EXPERT":
+                Expert lastExpert = expertRepo.findTopByOrderByExpertIDDesc();
+                String maxExpertId = (lastExpert != null) ? lastExpert.getExpertID() : null;
+                String newExpertId = generateNextId("EXPERT", maxExpertId);
+
                 Expert e = new Expert();
-                e.setExpertID("EXPERT-" + uuid);
+                e.setExpertID(newExpertId);
                 e.setUsername(form.getUsername());
                 e.setPhone(form.getUsername());
                 e.setName(form.getName());
                 e.setPassword(form.getPassword());
                 expertRepo.save(e);
                 break;
+
             case "ADMIN":
+                Admin lastAdmin = adminRepo.findTopByOrderByAdminIDDesc();
+                String maxAdminId = (lastAdmin != null) ? lastAdmin.getAdminID() : null;
+                String newAdminId = generateNextId("ADMIN", maxAdminId);
+
                 Admin a = new Admin();
-                a.setAdminID("ADMIN-" + uuid);
+                a.setAdminID(newAdminId);
                 a.setUsername(form.getUsername());
                 a.setName(form.getName());
                 a.setPassword(form.getPassword());

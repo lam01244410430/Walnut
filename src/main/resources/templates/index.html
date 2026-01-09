@@ -13,151 +13,66 @@
         /* --- Hero Section --- */
         .hero-section {
             background: linear-gradient(rgba(27, 94, 32, 0.9), rgba(27, 94, 32, 0.8));
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 120px 20px 100px;
-            text-align: center;
-            margin-bottom: 50px;
-            position: relative;
+            background-size: cover; background-position: center; color: white;
+            padding: 120px 20px 100px; text-align: center; margin-bottom: 50px; position: relative;
         }
         .hero-title { font-size: 3.5rem; margin: 0; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .hero-subtitle { font-size: 1.3rem; margin-top: 15px; opacity: 0.9; }
 
         /* --- TOP RIGHT HEADER STYLES --- */
-        .top-header {
-            position: absolute;
-            top: 25px;
-            right: 40px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .top-header { position: absolute; top: 25px; right: 40px; z-index: 1000; display: flex; align-items: center; gap: 15px; }
 
-        /* --- Guest Buttons --- */
         .btn-auth {
-            background-color: rgba(255,255,255,0.15);
-            color: white !important;
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 8px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-            backdrop-filter: blur(2px);
+            background-color: rgba(255,255,255,0.15); color: white !important;
+            border: 1px solid rgba(255,255,255,0.4); padding: 8px 20px;
+            border-radius: 25px; text-decoration: none; font-size: 0.95rem;
+            transition: all 0.3s; backdrop-filter: blur(2px);
         }
-        .btn-auth:hover {
-            background-color: white;
-            color: #2e7d32 !important;
-            transform: translateY(-2px);
-        }
+        .btn-auth:hover { background-color: white; color: #2e7d32 !important; transform: translateY(-2px); }
 
-        /* --- Account Management --- */
-        .account-wrapper {
-            position: relative;
-            padding: 10px 0;
-            cursor: pointer;
-        }
+        .account-wrapper { position: relative; padding: 10px 0; cursor: pointer; }
 
         .account-trigger {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            font-weight: bold;
-            font-size: 1.05rem;
-            padding: 8px 15px;
-            border-radius: 25px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: background 0.3s;
+            display: flex; align-items: center; gap: 10px; color: white;
+            font-weight: bold; font-size: 1.05rem; padding: 8px 15px;
+            border-radius: 25px; background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3); transition: background 0.3s;
         }
 
-        .account-wrapper:hover .account-trigger {
-            background-color: rgba(255, 255, 255, 0.25);
-        }
+        .account-wrapper:hover .account-trigger { background-color: rgba(255, 255, 255, 0.25); }
 
         .account-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 260px; /* Rộng hơn xíu để chứa text dài */
-            background-color: #ffffff;
-            box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 8px 0;
-            display: none;
-            margin-top: 5px;
-            text-align: left; /* Căn trái text trong menu */
+            position: absolute; top: 100%; right: 0; width: 260px;
+            background-color: #ffffff; box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+            border-radius: 8px; padding: 8px 0; display: none; margin-top: 5px; text-align: left;
         }
 
-        .account-dropdown::before {
-            content: "";
-            position: absolute;
-            top: -20px;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            background: transparent;
-        }
+        .account-dropdown::before { content: ""; position: absolute; top: -20px; left: 0; width: 100%; height: 20px; background: transparent; }
 
-        .account-wrapper:hover .account-dropdown {
-            display: block;
-            animation: slideUp 0.3s ease;
-        }
+        .account-wrapper:hover .account-dropdown { display: block; animation: slideUp 0.3s ease; }
 
         .account-dropdown a {
-            color: #333333 !important;
-            padding: 12px 20px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 15px;
-            transition: background 0.2s;
+            color: #333333 !important; padding: 12px 20px; text-decoration: none;
+            display: flex; align-items: center; gap: 12px; font-size: 15px; transition: background 0.2s;
         }
+        .account-dropdown a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
 
-        .account-dropdown a:hover {
-            background-color: #f1f8e9;
-            color: #2e7d32 !important;
-        }
+        .dropdown-icon { width: 20px; text-align: center; color: #2e7d32; }
 
-        .dropdown-icon {
-            width: 20px;
-            text-align: center;
-            color: #2e7d32;
-        }
-
-        .logout-link {
-            border-top: 1px solid #eee;
-            color: #d32f2f !important;
-            margin-top: 5px;
-        }
+        .logout-link { border-top: 1px solid #eee; color: #d32f2f !important; margin-top: 5px; }
         .logout-link .dropdown-icon { color: #d32f2f; }
         .logout-link:hover { background-color: #ffebee !important; }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- Feature Grid --- */
         .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
         }
         .feature-card {
-            background: white;
-            border-radius: 15px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: white; border-radius: 15px; padding: 40px 30px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;
             border-top: 5px solid #2e7d32;
         }
         .feature-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
@@ -204,11 +119,6 @@
                             <span th:if="${session.role == 'FARMER'}">我的农业 (My Farm)</span>
                         </a>
 
-                        <a th:href="@{/profile}">
-                            <span class="dropdown-icon"><i class="fas fa-cog"></i></span>
-                            <span>账号设置 (Settings)</span>
-                        </a>
-
                         <a th:href="@{/logout}" class="logout-link">
                             <span class="dropdown-icon"><i class="fas fa-sign-out-alt"></i></span>
                             <span>退出登录 (Logout)</span>
@@ -233,13 +143,13 @@
                 <span class="icon-large"><i class="fas fa-search-plus"></i></span>
                 <h3 class="fw-bold">智能病害识别</h3>
                 <p class="text-muted">快速查询核桃常见病虫害，获取专家防治建议。</p>
-                <a href="/search-pest" class="card-btn">去查询</a>
+                <a href="/search_pest" class="card-btn">去查询</a>
             </div>
             <div class="feature-card">
                 <span class="icon-large"><i class="fas fa-chart-line"></i></span>
                 <h3 class="fw-bold">产量预测分析</h3>
                 <p class="text-muted">基于历史数据分析，科学预测下一季产量。</p>
-                <a href="/predict-yield" class="card-btn">看数据</a>
+                <a href="/predict_yield" class="card-btn">看数据</a>
             </div>
             <div class="feature-card">
                 <span class="icon-large"><i class="fas fa-user-tie"></i></span>
@@ -247,12 +157,36 @@
                 <p class="text-muted">遇到种植难题？直接向农业专家提问。</p>
                 <a href="/consultation" class="card-btn">问专家</a>
             </div>
+            <div class="feature-card">
+                <span class="icon-large"><i class="fas fa-book-reader"></i></span>
+                <h3 class="fw-bold">知识资料库</h3>
+                <p class="text-muted">查阅种植技术文档、施肥指南与农业知识。</p>
+                <a href="/search_training" class="card-btn">查阅资料</a>
+            </div>
         </div>
     </div>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div th:if="${successMessage}" id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fs-6">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const toastEl = document.getElementById('liveToast');
+    if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+    }
+</script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

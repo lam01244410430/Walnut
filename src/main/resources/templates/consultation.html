@@ -2,32 +2,126 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>专家对话</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>专家咨询 - 掌上核桃</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Styles chung --- */
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header */
+        .page-header { background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%); color: white; padding: 50px 0 80px; margin-bottom: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .back-link { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.95rem; transition: color 0.3s; }
+        .back-link:hover { color: white; text-decoration: underline; }
+
+        /* Card & Form */
+        .content-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-top: -50px; position: relative; z-index: 10; margin-bottom: 30px; border-top: 5px solid #0288d1; }
+        .btn-submit { background-color: #0288d1; border-color: #0288d1; color: white; font-weight: bold; padding: 10px 25px; transition: all 0.3s; }
+        .btn-submit:hover { background-color: #01579b; transform: translateY(-1px); }
+
+        /* History Items */
+        .history-item { border-left: 4px solid #ddd; padding-left: 20px; margin-bottom: 25px; position: relative; }
+        .history-item.replied { border-left-color: #2e7d32; }
+        .history-item.pending { border-left-color: #ff9800; }
+        .question-box { font-weight: 600; color: #333; margin-bottom: 10px; }
+        .answer-box { background-color: #e3f2fd; padding: 15px; border-radius: 8px; color: #0d47a1; font-size: 0.95rem; margin-top: 10px; }
+        .badge-date { font-size: 0.75rem; color: #888; float: right; font-weight: normal; }
+    </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container">
-    <a href="/" class="back-link">⬅ 返回首页</a>
-    <h2 class="page-title">💬 专家咨询</h2>
-
-    <div class="card">
-        <form action="#" method="post"> <label>您的问题:</label>
-            <textarea rows="4" placeholder="请描述您遇到的问题..."></textarea>
-            <button type="button" class="btn-primary" onclick="alert('Demo: Câu hỏi đã được gửi đi!')">提交问题 (Gửi)</button>
-        </form>
+<div class="page-header text-center">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="/" class="back-link"><i class="fas fa-arrow-left me-2"></i>返回首页 (Home)</a>
+            <span class="badge bg-white text-primary bg-opacity-25">Expert Support</span>
+        </div>
+        <h1 class="fw-bold"><i class="fas fa-comments me-3"></i>专家在线咨询</h1>
+        <p class="opacity-75">遇到种植难题？提交问题，专家为您解答</p>
     </div>
+</div>
 
-    <h3 style="margin-top: 30px;">历史咨询 (Lịch sử)</h3>
-    <div class="card">
-        <p style="font-weight: bold; color: #333;">❓ 问题: 我的核桃树叶子发黄了怎么办？</p>
-        <div style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 10px;">
-            <p style="margin: 0; color: var(--primary-color);">👨‍⚕️ <strong>专家回复:</strong> 可能是缺氮肥，建议每株施用尿素 0.5kg。</p>
-            <small style="color: #999;">2025-12-06</small>
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <div class="content-card">
+                <h4 class="mb-4 text-primary"><i class="fas fa-pen-to-square me-2"></i>我要提问 (Ask Question)</h4>
+                <form action="/add-question" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">问题描述 (Description)</label>
+                        <textarea name="questionContent" class="form-control" rows="4"
+                                  placeholder="请详细描述您遇到的问题 (例如：核桃树叶子发黄，果实脱落...)" required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-submit rounded-pill">
+                            <i class="fas fa-paper-plane me-2"></i>提交问题 (Submit)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white p-4 rounded-3 shadow-sm">
+                <h5 class="mb-4 text-secondary border-bottom pb-2">
+                    <i class="fas fa-history me-2"></i>历史咨询记录 (History)
+                </h5>
+
+                <div th:if="${myQuestions == null or #lists.isEmpty(myQuestions)}" class="text-center py-4 text-muted">
+                    <i class="fas fa-comment-slash fa-3x mb-3 opacity-50"></i>
+                    <p>您还没有提问记录。<br>(No questions yet)</p>
+                </div>
+
+                <div th:if="${myQuestions != null}" th:each="q : ${myQuestions}">
+                    <div class="history-item" th:classappend="${q.answer != null} ? 'replied' : 'pending'">
+                        <div class="question-box">
+                            <span class="badge bg-light text-dark border me-2">Q</span>
+                            <span th:text="${q.question}">Câu hỏi...</span>
+                            <span class="badge-date" th:if="${q.createdDate != null}"
+                                  th:text="${#temporals.format(q.createdDate, 'yyyy-MM-dd')}">Date</span>
+                        </div>
+
+                        <div th:if="${q.answer == null}" class="text-warning small ms-4">
+                            <i class="fas fa-clock me-1"></i> 等待专家回复... (Waiting for reply)
+                        </div>
+
+                        <div th:if="${q.answer != null}" class="answer-box">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-user-doctor me-2"></i>
+                                <strong>专家回复 (Expert Answer):</strong>
+                            </div>
+                            <span th:text="${q.answer}">Nội dung trả lời...</span>
+                        </div>
+                    </div>
+                    <hr class="text-muted opacity-25">
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<script th:src="@{/js/main.js}"></script>
+
+<div class="bg-dark text-white text-center py-3 mt-auto">
+    <div class="container"><small>&copy; 2025 掌上核桃</small></div>
+</div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div th:if="${successMessage}" id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fs-6">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Kích hoạt Toast
+    const toastEl = document.getElementById('liveToast');
+    if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+    }
+</script>
 </body>
 </html>

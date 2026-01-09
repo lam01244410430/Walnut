@@ -1,136 +1,143 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="UTF-8">
-    <title>我的农业 (My Farm) - Farmer Dashboard</title>
+    <title>我的农业 (My Farm)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; }
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; overflow-x: hidden; }
 
-        /* Sidebar riêng cho Farmer (Màu Xanh) */
-        .sidebar-farmer {
+        /* --- SIDEBAR CỐ ĐỊNH --- */
+        .sidebar {
             background-color: #2e7d32;
             color: white;
-            min-height: 100vh;
-            min-width: 250px;
-            padding-top: 20px;
-        }
-        .sidebar-farmer .nav-link {
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 5px;
-            border-radius: 0;
-            padding: 12px 20px;
-        }
-        .sidebar-farmer .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-        .sidebar-farmer .nav-link.active {
-            background-color: #ffffff;
-            color: #2e7d32;
-            font-weight: bold;
-            border-left: 5px solid #ffca28; /* Điểm nhấn màu vàng */
+            height: 100vh;
+            width: 260px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
         }
 
-        /* Card Custom giống Admin */
-        .card-custom { border: none; border-radius: 15px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        /* Link Sidebar */
+        .sidebar a.sidebar-link {
+            color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 15px;
+            display: block; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;
+        }
+        .sidebar a.sidebar-link:hover { background: rgba(255,255,255,0.15); color: white; }
+
+        /* Nav Pills (Tabs) */
+        .sidebar .nav-pills .nav-link {
+            color: rgba(255,255,255,0.8);
+            text-align: left;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+        }
+        .sidebar .nav-pills .nav-link:hover { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar .nav-pills .nav-link.active {
+            background-color: white;
+            color: #2e7d32;
+            font-weight: bold;
+            border-left: 5px solid #ffca28; /* Điểm nhấn vàng */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Form & Cards */
+        .form-label-custom { font-weight: bold; color: #555; }
+        .form-control:focus { border-color: #2e7d32; box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25); }
+        .card-custom { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-<div class="d-flex" style="min-height: 100vh;">
+<div class="d-flex" style="height: 100vh; overflow: hidden;">
 
-    <div class="sidebar-farmer d-flex flex-column p-3">
+    <div class="sidebar">
+        <h3 class="text-center mb-4 fw-bold text-white"><i class="fas fa-tractor me-2"></i>掌上核桃</h3>
 
-        <h3 class="text-center mb-4 fw-bold text-white">
-            <i class="fas fa-tractor me-2"></i>掌上核桃
-        </h3>
-
-        <div class="text-center mb-4 px-2">
-            <div class="bg-white text-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+        <div class="text-center mb-4 pb-3 border-bottom border-white-50">
+            <div class="bg-white text-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 70px; height: 70px;">
                 <i class="fas fa-user fa-2x"></i>
             </div>
-            <div class="fw-bold text-white" th:text="${farmer.name}">Farmer Name</div>
+            <div class="fw-bold" th:text="${farmer.name}">Name</div>
             <div class="small text-white-50" th:text="${farmer.phone}">Phone</div>
         </div>
 
-        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-            <button class="nav-link text-start active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button">
+        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist">
+            <button class="nav-link active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button">
                 <i class="fas fa-id-card me-2" style="width: 25px;"></i> 个人信息 (Profile)
             </button>
 
-            <button class="nav-link text-start" id="v-pills-questions-tab" data-bs-toggle="pill" data-bs-target="#v-pills-questions" type="button">
+            <button class="nav-link" id="v-pills-questions-tab" data-bs-toggle="pill" data-bs-target="#v-pills-questions" type="button">
                 <i class="fas fa-question-circle me-2" style="width: 25px;"></i> 我的提问 (Questions)
             </button>
         </div>
 
-        <div class="mt-auto border-top border-white-50 pt-3">
-            <a class="nav-link text-start text-white" href="/">
-                <i class="fas fa-home me-2" style="width: 25px;"></i> 返回首页 (Home)
-            </a>
-            <a class="nav-link text-start text-white" href="/logout">
-                <i class="fas fa-sign-out-alt me-2" style="width: 25px;"></i> 退出 (Logout)
-            </a>
+        <div class="mt-auto pt-3 border-top border-white-50">
+            <a href="/" class="sidebar-link"><i class="fas fa-home me-2"></i> 返回首页 (Home)</a>
+            <a href="/logout" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> 退出 (Logout)</a>
         </div>
-
     </div>
 
-    <div class="w-100 d-flex flex-column bg-light">
+    <div class="flex-grow-1 p-4 bg-light" style="height: 100vh; overflow-y: auto;">
+        <div class="container-fluid">
 
-        <div th:replace="~{fragments/header :: header}"></div>
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card card-custom p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-success fw-bold"><i class="fas fa-chart-line me-2"></i>产量趋势与预测 (Yield Trend & Prediction)</h4>
-                        <span class="badge bg-warning text-dark fs-6">
-                    2025 预测: <span th:text="${predictedYield}"></span> kg
-                </span>
-                    </div>
-                    <div style="height: 300px;">
-                        <canvas id="yieldChart"></canvas>
-                    </div>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-secondary">
+                    Welcome back, <span class="text-success" th:text="${farmer.name}">Farmer</span>!
+                </h3>
+                <span class="text-muted"><i class="fas fa-calendar-alt me-1"></i> 今日: <span id="currentDate"></span></span>
             </div>
-        </div>
-        <div class="container-fluid p-4 flex-grow-1">
+
             <div class="tab-content" id="v-pills-tabContent">
 
                 <div class="tab-pane fade show active" id="v-pills-profile">
-                    <h4 class="mb-4 fw-bold text-success">
-                        <i class="fas fa-user-circle me-2"></i> 个人信息管理
-                    </h4>
+                    <h4 class="mb-4 fw-bold text-success"><i class="fas fa-user-edit me-2"></i> 个人信息管理</h4>
+
                     <div class="card card-custom p-4 bg-white">
-                        <form>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">用户名 (Username/Phone)</label>
-                                    <input type="text" class="form-control" th:value="${farmer.username}" readonly>
+                        <form action="/farmer/update-profile" method="post">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-custom">用户名 (Username)</label>
+                                    <input type="text" class="form-control bg-light" th:value="${farmer.username}" readonly>
+                                    <small class="text-muted">* 不可修改</small>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">姓名 (Full Name)</label>
-                                    <input type="text" class="form-control" th:value="${farmer.name}" readonly>
+
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-custom">姓名 (Full Name)</label>
+                                    <input type="text" name="name" class="form-control" th:value="${farmer.name}" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">联系电话 (Phone)</label>
-                                    <input type="text" class="form-control" th:value="${farmer.phone}">
+
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-custom">联系电话 (Phone)</label>
+                                    <input type="text" name="phone" class="form-control" th:value="${farmer.phone}" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">种植地址 (Address)</label>
-                                    <input type="text" class="form-control" th:value="${farmer.address}">
+
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-custom">种植地址 (Address)</label>
+                                    <input type="text" name="address" class="form-control" th:value="${farmer.address}">
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-success px-4"><i class="fas fa-save me-2"></i>更新信息 (Update)</button>
+
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-success px-4 rounded-pill">
+                                    <i class="fas fa-save me-2"></i>保存修改 (Update)
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
 
                 <div class="tab-pane fade" id="v-pills-questions">
-                    <h4 class="mb-4 fw-bold text-success">
-                        <i class="fas fa-history me-2"></i> 提问历史记录
-                    </h4>
+                    <h4 class="mb-4 fw-bold text-success"><i class="fas fa-history me-2"></i> 提问历史记录</h4>
+
                     <div class="card card-custom p-0 bg-white overflow-hidden">
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="bg-light text-secondary">
@@ -144,13 +151,13 @@
                             <tbody>
                             <tr th:each="q : ${myQuestions}">
                                 <td class="ps-4 fw-bold" th:text="${q.consultationID}">ID</td>
-                                <td class="text-truncate" style="max-width: 300px;" th:text="${q.question}">Question</td>
+                                <td class="text-truncate" style="max-width: 400px;" th:text="${q.question}">Question</td>
                                 <td>
                                     <span th:if="${q.answer != null}" class="badge bg-success">已回答</span>
                                     <span th:if="${q.answer == null}" class="badge bg-warning text-dark">待回答</span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" th:data-bs-target="'#modalView'+${q.consultationID}">
+                                    <button class="btn btn-sm btn-outline-success rounded-pill" data-bs-toggle="modal" th:data-bs-target="'#modalView'+${q.consultationID}">
                                         查看 (View)
                                     </button>
 
@@ -161,17 +168,25 @@
                                                     <h5 class="modal-title">详情 (Details)</h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <p class="fw-bold">问：<span th:text="${q.question}" class="fw-normal"></span></p>
-                                                    <hr>
-                                                    <p class="fw-bold text-success">答：
-                                                        <span th:if="${q.answer != null}" th:text="${q.answer}" class="fw-normal text-dark"></span>
-                                                        <span th:if="${q.answer == null}" class="text-muted fw-normal">专家暂未回复...</span>
-                                                    </p>
+                                                <div class="modal-body p-4">
+                                                    <div class="alert alert-secondary">
+                                                        <strong>问:</strong> <span th:text="${q.question}"></span>
+                                                    </div>
+                                                    <div th:if="${q.answer != null}" class="alert alert-success">
+                                                        <strong>答:</strong> <span th:text="${q.answer}"></span>
+                                                    </div>
+                                                    <div th:if="${q.answer == null}" class="text-center text-muted py-3">
+                                                        <i class="fas fa-clock me-2"></i> 专家正在思考中... (Waiting)
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(myQuestions)}">
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    暂无提问记录 (No questions yet)
                                 </td>
                             </tr>
                             </tbody>
@@ -181,50 +196,31 @@
 
             </div>
         </div>
-
-        <div th:replace="~{fragments/footer :: footer}"></div>
     </div>
 </div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div th:if="${successMessage}" id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fs-6">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    /* Lấy dữ liệu từ Controller (Thymeleaf) */
-    var years = /*[[${chartYears}]]*/ [];
-    var yields = /*[[${chartYields}]]*/ [];
-    var predictedVal = /*[[${predictedYield}]]*/ 0;
+<script>
+    // 1. Hiển thị ngày hiện tại
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
 
-    // Thêm năm dự đoán vào biểu đồ để hiển thị
-    var displayYears = [...years, 2025];
-    var displayYields = [...yields, predictedVal];
-
-    // Vẽ
-    var ctx = document.getElementById('yieldChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'line', // Biểu đồ đường
-        data: {
-            labels: displayYears,
-            datasets: [{
-                label: '产量 (kg) - Sản lượng',
-                data: displayYields,
-                borderColor: '#2e7d32', // Màu xanh
-                backgroundColor: 'rgba(46, 125, 50, 0.1)',
-                borderWidth: 3,
-                pointBackgroundColor: ['#2e7d32', '#2e7d32', '#d32f2f', '#2e7d32', '#ffca28'], // Năm 2023 bị đỏ (sụt giảm), 2025 vàng (dự đoán)
-                pointRadius: 5,
-                fill: true,
-                tension: 0.3 // Đường cong mềm mại
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' }
-            },
-            scales: {
-                y: { beginAtZero: false }
-            }
-        }
-    });
+    // 2. Kích hoạt Toast khi có thông báo thành công
+    const toastEl = document.getElementById('liveToast');
+    if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 }); // Biến mất sau 3s
+        toast.show();
+    }
 </script>
 </body>
 </html>

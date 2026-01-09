@@ -18,4 +18,7 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Stri
     // Các hàm khác phục vụ cho Expert
     List<Consultation> findByExpertAndAnswerIsNull(Expert expert);
     List<Consultation> findByExpertAndAnswerIsNotNull(Expert expert);
+    List<Consultation> findByAnswerIsNull();
+
+    Consultation findTopByOrderByConsultationIDDesc();
 }

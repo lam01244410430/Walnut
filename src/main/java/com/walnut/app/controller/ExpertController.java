@@ -8,10 +8,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -22,40 +20,93 @@ public class ExpertController {
     @Autowired private ExpertRepository expertRepo;
     @Autowired private ConsultationRepository consultationRepo;
 
+    // --- 1. TRANG CHỦ MỚI CHO EXPERT ---
+    @GetMapping("/index")
+    public String expertIndex(HttpSession session, Model model) {
+        Object user = session.getAttribute("user");
+        if (!(user instanceof Expert)) return "redirect:/login";
+
+        // Lấy danh sách câu hỏi CHƯA trả lời để hiển thị ngay trang chủ
+        // (Đảm bảo bạn đã có hàm findByAnswerIsNull trong Repo như hướng dẫn trước)
+        List<Consultation> pendingQuestions = consultationRepo.findByAnswerIsNull();
+        model.addAttribute("pendingQuestions", pendingQuestions);
+
+        // Trả về file template 'index_expert.html' (nằm cùng cấp với index.html)
+        return "index_expert";
+    }
+
+    // --- 2. DASHBOARD (Chỉ còn Lịch sử & Info) ---
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        // 1. Kiểm tra đăng nhập
-        Expert sessionUser = (Expert) session.getAttribute("user");
-        if (sessionUser == null) return "redirect:/login";
+        Object user = session.getAttribute("user");
+        if (!(user instanceof Expert)) return "redirect:/login";
 
-        // 2. Lấy thông tin Chuyên gia mới nhất
-        Expert currentExpert = expertRepo.findById(sessionUser.getExpertID()).orElse(null);
+        Expert sessionExpert = (Expert) user;
+        // Load lại thông tin mới nhất
+        Expert currentExpert = expertRepo.findById(sessionExpert.getExpertID()).orElse(sessionExpert);
         model.addAttribute("expert", currentExpert);
 
-        // 3. Lấy danh sách PENDING (Chưa trả lời)
-        List<Consultation> pendingList = consultationRepo.findByExpertAndAnswerIsNull(currentExpert);
-        model.addAttribute("pendingQuestions", pendingList);
+        // Lấy danh sách câu hỏi ĐÃ trả lời của chuyên gia này
+        // (Bạn có thể lọc trong Java hoặc viết query trong Repo)
+        List<Consultation> history = currentExpert.getConsultationList();
 
-        // 4. Lấy danh sách HISTORY (Đã trả lời)
-        List<Consultation> historyList = consultationRepo.findByExpertAndAnswerIsNotNull(currentExpert);
-        model.addAttribute("historyQuestions", historyList);
+        model.addAttribute("history", history);
 
+        // Trả về file trong thư mục templates/expert/dashboard.html
         return "expert/dashboard";
     }
 
-    // --- XỬ LÝ TRẢ LỜI CÂU HỎI ---
+    // --- 3. XỬ LÝ TRẢ LỜI CÂU HỎI ---
     @PostMapping("/reply")
-    public String handleReply(@RequestParam String consultationID,
-                              @RequestParam String answer) {
-        // Tìm câu hỏi trong DB
-        Consultation consult = consultationRepo.findById(consultationID).orElse(null);
+    public String replyToFarmer(@RequestParam("consultationID") String consultationID,
+                                @RequestParam("answer") String answer,
+                                HttpSession session) {
+        Object user = session.getAttribute("user");
+        if (!(user instanceof Expert)) return "redirect:/login";
+        Expert currentExpert = (Expert) user;
 
+        Consultation consult = consultationRepo.findById(consultationID).orElse(null);
         if (consult != null) {
-            // Cập nhật câu trả lời
             consult.setAnswer(answer);
-            consultationRepo.save(consult); // Lưu xuống DB
+            consult.setExpert(currentExpert);
+            consultationRepo.save(consult);
         }
 
-        return "redirect:/expert/dashboard"; // Load lại trang để thấy nó chuyển sang tab Lịch sử
+        // Trả lời xong thì quay lại trang chủ Expert để làm việc tiếp
+        return "redirect:/expert/index";
+    }
+
+    @PostMapping("/update-profile")
+    public String updateProfile(@ModelAttribute Expert expertForm,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+
+        // 1. Kiểm tra đăng nhập
+        Object user = session.getAttribute("user");
+        if (!(user instanceof Expert)) return "redirect:/login";
+
+        Expert sessionExpert = (Expert) user;
+
+        // 2. Lấy expert thực tế từ DB
+        Expert currentExpert = expertRepo.findById(sessionExpert.getExpertID()).orElse(null);
+
+        if (currentExpert != null) {
+            // 3. Cập nhật các trường cho phép sửa
+            currentExpert.setName(expertForm.getName());
+            currentExpert.setPhone(expertForm.getPhone());
+            currentExpert.setEmail(expertForm.getEmail());
+            currentExpert.setSpecialty(expertForm.getSpecialty());
+
+            // Lưu vào DB
+            expertRepo.save(currentExpert);
+
+            // Cập nhật lại Session để giao diện hiển thị đúng ngay lập tức
+            session.setAttribute("user", currentExpert);
+
+            // Gửi thông báo thành công
+            redirectAttributes.addFlashAttribute("successMessage", "个人信息已更新!");
+        }
+
+        return "redirect:/expert/dashboard";
     }
 }

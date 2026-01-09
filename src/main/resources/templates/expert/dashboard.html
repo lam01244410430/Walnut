@@ -2,176 +2,165 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>专家工作台 (Expert Workbench)</title>
+    <title>专家后台 (Dashboard)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; }
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; overflow-x: hidden; }
 
-        /* Sidebar riêng cho Expert (Đã đổi sang màu xanh lá giống Farmer) */
-        .sidebar-expert {
-            background-color: #2e7d32; /* Màu xanh lá Farmer */
+        /* --- SIDEBAR CỐ ĐỊNH (FIXED WIDTH) --- */
+        .sidebar {
+            background-color: #1b5e20;
             color: white;
-            min-height: 100vh;
-            min-width: 250px;
-            padding-top: 20px;
-        }
-        .sidebar-expert .nav-link {
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 5px;
-            border-radius: 0;
-            padding: 12px 20px;
-        }
-        .sidebar-expert .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-        .sidebar-expert .nav-link.active {
-            background-color: #ffffff;
-            color: #2e7d32; /* Chữ màu xanh lá khi active */
-            font-weight: bold;
-            border-left: 5px solid #ffca28;
+            height: 100vh;
+            width: 260px; /* Chiều rộng cố định */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* QUAN TRỌNG: Không cho co lại khi nội dung bên phải to ra */
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
         }
 
-        .card-custom { border: none; border-radius: 15px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        .sidebar a.sidebar-link { color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 15px; display: block; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s; }
+        .sidebar a.sidebar-link:hover { background: rgba(255,255,255,0.15); color: white; }
+
+        /* Nav Pills */
+        .sidebar .nav-pills .nav-link { color: rgba(255,255,255,0.8); text-align: left; padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; width: 100%; font-size: 1rem; }
+        .sidebar .nav-pills .nav-link:hover { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar .nav-pills .nav-link.active { background-color: white; color: #1b5e20; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        /* Layout Main Content */
+        .main-content { flex-grow: 1; padding: 2rem; height: 100vh; overflow-y: auto; }
+
+        .profile-card { border-left: 5px solid #1b5e20; }
+        .form-label-custom { font-weight: bold; color: #555; }
+        .form-control:focus { border-color: #1b5e20; box-shadow: 0 0 0 0.25rem rgba(27, 94, 32, 0.25); }
     </style>
 </head>
 <body>
 
-<div class="d-flex" style="min-height: 100vh;">
+<div class="d-flex">
 
-    <div class="sidebar-expert d-flex flex-column p-3"> <h4 class="text-center mb-4 fw-bold text-white">
-        <i class="fas fa-user-md me-2"></i>专家后台
-    </h4>
-
-        <div class="text-center mb-4 px-2">
+    <div class="sidebar">
+        <h4 class="text-center mb-4 fw-bold">个人中心</h4>
+        <div class="text-center mb-4 pb-3 border-bottom border-white-50">
             <div class="bg-white text-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
                 <i class="fas fa-user-tie fa-2x"></i>
             </div>
-            <div class="fw-bold text-white" th:text="${expert.name}">Name</div>
-            <div class="small text-white-50" th:text="${expert.specialty}">Spec</div>
+            <div class="fw-bold" th:text="${expert.name}">Name</div>
         </div>
 
-        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-            <button class="nav-link text-start active" id="v-pills-pending-tab" data-bs-toggle="pill" data-bs-target="#v-pills-pending" type="button">
-                <i class="fas fa-inbox me-2" style="width: 25px;"></i> 待回答 (Pending)
-                <span class="badge bg-danger ms-2" th:if="${!#lists.isEmpty(consultations)}" th:text="${#lists.size(consultations)}"></span>
+        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist">
+            <button class="nav-link active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button">
+                <i class="fas fa-id-card me-2"></i> 个人资料 (Profile)
             </button>
-
-            <button class="nav-link text-start" id="v-pills-history-tab" data-bs-toggle="pill" data-bs-target="#v-pills-history" type="button">
-                <i class="fas fa-check-double me-2" style="width: 25px;"></i> 已回答 (History)
+            <button class="nav-link" id="v-pills-history-tab" data-bs-toggle="pill" data-bs-target="#v-pills-history" type="button">
+                <i class="fas fa-history me-2"></i> 回答历史 (History)
             </button>
         </div>
 
-        <div class="mt-auto border-top border-white-50 pt-3">
-            <a class="nav-link text-start text-white" href="/">
-                <i class="fas fa-home me-2" style="width: 25px;"></i> 返回首页 (Home)
-            </a>
-            <a class="nav-link text-start text-white" href="/logout">
-                <i class="fas fa-sign-out-alt me-2" style="width: 25px;"></i> 退出 (Logout)
-            </a>
+        <div class="mt-auto pt-3 border-top border-white-50">
+            <a href="/expert/index" class="sidebar-link"><i class="fas fa-arrow-left me-2"></i> 返回工作台 (Home)</a>
+            <a href="/logout" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> 退出登录</a>
         </div>
-
     </div>
 
-    <div class="w-100 d-flex flex-column bg-light">
+    <div class="main-content bg-light">
+        <div class="container-fluid">
 
-        <div th:replace="~{fragments/header :: header}"></div>
-
-        <div class="container-fluid p-4 flex-grow-1">
-            <div class="tab-content">
-
-                <div class="tab-pane fade show active" id="v-pills-pending">
-                    <h4 class="mb-4 fw-bold text-success">
-                        <i class="fas fa-clipboard-list me-2"></i> 待处理咨询 (Pending Questions)
-                    </h4>
-
-                    <div class="card card-custom p-0 bg-white overflow-hidden">
-                        <table class="table table-hover mb-0 align-middle">
-                            <thead class="bg-light text-secondary">
-                            <tr>
-                                <th class="ps-4">ID</th>
-                                <th>农户 (Farmer)</th>
-                                <th>问题 (Question)</th>
-                                <th>操作 (Action)</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="q : ${pendingQuestions}">
-                                <td class="ps-4 fw-bold" th:text="${q.consultationID}">ID</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light text-success rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:30px; height:30px;">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        <span th:text="${q.farmer != null ? q.farmer.name : 'Unknown'}">Name</span>
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-profile">
+                    <h3 class="fw-bold text-secondary mb-4"><i class="fas fa-user-edit me-2"></i>编辑个人资料 (Edit Profile)</h3>
+                    <div class="card border-0 shadow-sm p-4 profile-card bg-white">
+                        <form action="/expert/update-profile" method="post">
+                            <div class="row">
+                                <div class="col-md-3 text-center mb-4">
+                                    <div class="bg-light text-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 140px; height: 140px; border: 5px solid #e9ecef;">
+                                        <i class="fas fa-user-tie fa-4x"></i>
                                     </div>
-                                </td>
-                                <td class="text-truncate" style="max-width: 350px;" th:text="${q.question}">Nội dung câu hỏi...</td>
-                                <td>
-                                    <button class="btn btn-sm btn-success rounded-pill px-3"
-                                            data-bs-toggle="modal"
-                                            th:data-bs-target="'#replyModal'+${q.consultationID}">
-                                        <i class="fas fa-reply me-1"></i> 回复 (Reply)
-                                    </button>
-
-                                    <div class="modal fade" th:id="'replyModal'+${q.consultationID}" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form action="/expert/reply" method="post">
-                                                    <div class="modal-header bg-success text-white">
-                                                        <h5 class="modal-title fw-bold">回复咨询 (Reply to Farmer)</h5>
-                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="consultationID" th:value="${q.consultationID}">
-
-                                                        <div class="p-3 bg-light rounded mb-3 border-start border-4 border-success">
-                                                            <small class="text-muted fw-bold">农户提问 (Question):</small>
-                                                            <p class="mb-0 mt-1" th:text="${q.question}"></p>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">您的建议 (Your Answer):</label>
-                                                            <textarea name="answer" class="form-control" rows="5" placeholder="请输入专业的指导意见..." required></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消 (Cancel)</button>
-                                                        <button type="submit" class="btn btn-success px-4">
-                                                            <i class="fas fa-paper-plane me-2"></i>发送 (Send)
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
+                                    <h5 class="fw-bold text-success" th:text="${expert.name}">Name</h5>
+                                    <p class="text-muted small">ID: <span th:text="${expert.expertID}"></span></p>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label form-label-custom">账号 (Username)</label>
+                                            <input type="text" class="form-control bg-light" th:value="${expert.username}" readonly>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label form-label-custom">姓名 (Name)</label>
+                                            <input type="text" name="name" class="form-control" th:value="${expert.name}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label form-label-custom">电话 (Phone)</label>
+                                            <input type="text" name="phone" class="form-control" th:value="${expert.phone}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label form-label-custom">邮箱 (Email)</label>
+                                            <input type="email" name="email" class="form-control" th:value="${expert.email}">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label form-label-custom">专业领域 (Specialty)</label>
+                                            <textarea name="specialty" class="form-control" rows="2" th:text="${expert.specialty}"></textarea>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
-
-                            <tr th:if="${#lists.isEmpty(pendingQuestions)}">
-                                <td colspan="4" class="text-center py-5">
-                                    <i class="fas fa-check-circle text-success mb-3" style="font-size: 2rem;"></i>
-                                    <p class="text-muted mb-0">太棒了！所有问题都已处理 (All questions answered)</p>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-success px-4 rounded-pill"><i class="fas fa-save me-2"></i>保存 (Save)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
                 <div class="tab-pane fade" id="v-pills-history">
-                    <h4 class="mb-4 fw-bold text-success">已回答历史</h4>
-                    <div class="alert alert-info">此处展示已回答的历史记录...</div>
+                    <h3 class="fw-bold text-secondary mb-4"><i class="fas fa-history me-2"></i>已回答历史</h3>
+                    <div class="card border-0 shadow-sm p-4 bg-white">
+                        <div th:if="${#lists.isEmpty(history)}" class="text-center text-muted py-5">
+                            <p>暂无记录。</p>
+                        </div>
+                        <div class="list-group list-group-flush" th:if="${!#lists.isEmpty(history)}">
+                            <div th:each="h : ${history}" th:if="${h.answer != null}" class="list-group-item py-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-secondary me-2">Q</span>
+                                        <h6 class="fw-bold text-dark mb-0"><span th:text="${h.question}"></span></h6>
+                                    </div>
+                                    <small class="text-muted" th:text="${h.createdDate}">Date</small>
+                                </div>
+                                <div class="bg-light p-3 rounded border-start border-4 border-success ms-4">
+                                    <strong class="text-success">答:</strong> <span th:text="${h.answer}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
             </div>
         </div>
+    </div>
+</div>
 
-        <div th:replace="~{fragments/footer :: footer}"></div>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div th:if="${successMessage}" id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fs-6">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Kích hoạt Toast
+    const toastEl = document.getElementById('liveToast');
+    if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 }); // Biến mất sau 3s
+        toast.show();
+    }
+</script>
 </body>
 </html>

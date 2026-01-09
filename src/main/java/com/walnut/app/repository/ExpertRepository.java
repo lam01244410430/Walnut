@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface ExpertRepository extends JpaRepository<Expert, String> {
     // 根据用户名查询专家 (Tìm chuyên gia theo tên đăng nhập)
     Expert findByUsername(String username);
+    Expert findTopByOrderByExpertIDDesc();
 }

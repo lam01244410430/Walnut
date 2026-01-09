@@ -2,27 +2,176 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>病虫害查询</title>
+    <title>病虫害查询 - 掌上核桃</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: "Microsoft YaHei", sans-serif; padding: 20px; } /* Thêm font hỗ trợ tiếng Trung tốt hơn */
-        .card { border: 1px solid #ccc; padding: 10px; margin-top: 10px; background: white; border-left: 5px solid #d32f2f; }
+        /* --- Styles Giữ Nguyên --- */
+        body { background-color: #f8f9fa; font-family: 'Microsoft YaHei', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+        .page-header {
+            background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%);
+            color: white;
+            padding: 50px 0 80px;
+            margin-bottom: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .back-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: white; text-decoration: underline; }
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-top: -50px;
+            position: relative;
+            z-index: 10;
+            border-top: 5px solid #2e7d32;
+        }
+        .btn-search {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
+            color: white;
+            padding: 12px 30px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-search:hover { background-color: #1b5e20; transform: translateY(-1px); }
+        .pest-card {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+        .pest-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
+        .pest-card-body { padding: 25px; border-left: 6px solid #d32f2f; }
+        .pest-title { color: #d32f2f; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .section-label { font-weight: bold; color: #2e7d32; display: block; margin-top: 15px; margin-bottom: 5px; font-size: 0.95rem; }
+        .treatment-box { background-color: #e8f5e9; padding: 15px; border-radius: 8px; color: #1b5e20; margin-top: 10px; border: 1px dashed #4caf50; }
+
+        /* CSS cho nút Reset (X) */
+        .btn-reset {
+            border: 1px solid #ced4da;
+            border-left: none;
+            background-color: white;
+            color: #999;
+            z-index: 5;
+        }
+        .btn-reset:hover { color: #d32f2f; background-color: white; border-color: #ced4da; }
     </style>
 </head>
 <body>
-<a href="/">⬅ 返回首页</a>
-<h2>病虫害查询</h2>
 
-<form action="/search" method="get">
-    <input type="text" name="keyword" placeholder="请输入症状 (例如：叶片变黄)..." style="padding: 10px; width: 300px;">
-    <button type="submit" style="padding: 10px;">搜索</button>
-</form>
-
-<div th:if="${results}">
-    <h3>查询结果：</h3>
-    <div th:each="pest : ${results}" class="card">
-        <h4 th:text="${pest.pestID} + ' - ' + ${pest.symptoms}"></h4>
-        <p><strong>防治方法：</strong> <span th:text="${pest.treatment}"></span></p>
+<div class="page-header text-center">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="/" class="back-link"><i class="fas fa-arrow-left me-2"></i>返回首页 (Home)</a>
+        </div>
+        <h1 class="fw-bold"><i class="fas fa-search-plus me-3"></i>病虫害智能查询</h1>
+        <p class="opacity-75">快速识别病害症状，获取专家防治方案</p>
     </div>
 </div>
+
+<div class="container pb-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="search-container">
+                <form id="searchForm" onsubmit="handleSearch(event)">
+                    <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="fas fa-stethoscope"></i>
+                            </span>
+
+                        <input type="text" id="keywordInput" name="keyword" class="form-control border-start-0 border-end-0 ps-0"
+                               placeholder="请输入症状描述 (例如：叶子变黄, 树干腐烂)..."
+                               th:value="${param.keyword}">
+
+                        <a th:if="${param.keyword != null}" href="/search_pest" class="btn btn-reset d-flex align-items-center" title="清除 (Clear)">
+                            <i class="fas fa-times"></i>
+                        </a>
+
+                        <button class="btn btn-search" type="submit">
+                            <i class="fas fa-search me-2"></i>搜索 (Search)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div th:if="${results == null or #lists.isEmpty(results)}" class="text-center py-5 text-muted">
+                <div th:if="${param.keyword != null}">
+                    <i class="fas fa-box-open fa-3x mb-3 text-secondary"></i>
+                    <p>没有找到相关病害信息，请尝试其他关键词。<br>(No matching diseases found)</p>
+                </div>
+                <div th:if="${param.keyword == null}">
+                    <i class="fas fa-seedling fa-3x mb-3 text-success opacity-50"></i>
+                    <p>请输入症状以开始查询。<br>(Please enter symptoms to start searching)</p>
+                </div>
+            </div>
+
+            <div th:if="${results != null}" th:each="pest : ${results}">
+                <div class="pest-card">
+                    <div class="pest-card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h4 class="pest-title">
+                                <i class="fas fa-bug"></i>
+                                <span th:text="${pest.name}">Disease Name</span>
+                            </h4>
+                            <span class="badge bg-light text-secondary border" th:text="'ID: ' + ${pest.id}">ID: 1</span>
+                        </div>
+                        <div class="mt-3">
+                            <span class="section-label"><i class="fas fa-eye me-1"></i> 症状特征 (Symptoms):</span>
+                            <p class="text-secondary mb-0" th:text="${pest.symptoms}">Mô tả...</p>
+                        </div>
+                        <div class="treatment-box">
+                            <span class="fw-bold"><i class="fas fa-kit-medical me-1"></i> 防治方法 (Treatment):</span>
+                            <div class="mt-1" th:text="${pest.treatment}">Giải pháp...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+    <div class="container">
+        <small>&copy; 2025 掌上核桃 (Walnut App). All Rights Reserved.</small>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function handleSearch(e) {
+        e.preventDefault(); // Ngăn form submit mặc định
+
+        let keyword = document.getElementById('keywordInput').value.trim();
+        if (!keyword) return; // Nếu rỗng thì không làm gì
+
+        let targetUrl = '/search_pest?keyword=' + encodeURIComponent(keyword);
+
+        // LOGIC QUAN TRỌNG:
+        // Nếu URL hiện tại đã có "?keyword=" (tức là đang ở trang kết quả)
+        // Ta dùng replace() để GHI ĐÈ trang hiện tại, không tạo lịch sử mới.
+        if (window.location.search.includes('keyword=')) {
+            window.location.replace(targetUrl);
+        } else {
+            // Nếu đang ở trang trắng, dùng href bình thường để tạo lịch sử (để còn Back lại trang trắng được)
+            window.location.href = targetUrl;
+        }
+    }
+</script>
 </body>
 </html>
